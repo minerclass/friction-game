@@ -1,277 +1,291 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Friction Lab: The Calibration Challenge</title>
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="style.css">
-</head>
-<body data-env="title">
-  <!-- Interactive Particle Background Canvas -->
-  <canvas id="fx"></canvas>
-  <div id="vignette"></div>
-  <div id="scan"></div>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Friction Lab: The Calibration Challenge</title>
+<style>
+  :root{
+    --bg:#0b1016; --panel:rgba(17,24,33,.85); --line:#27313d;
+    --text:#e6edf3; --dim:#8b98a5;
+    --accent:#38bdf8;
+    --good:#34d399; --bad:#f87171; --warn:#fbbf24;
+    --noetic:#38bdf8; --rhet:#a78bfa; --exis:#34d399; --infra:#f59e0b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg);
+    background-image:
+      linear-gradient(rgba(56,189,248,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(56,189,248,.04) 1px, transparent 1px);
+    background-size:42px 42px;
+    color:var(--text);
+    font-family:-apple-system,'Segoe UI',Roboto,Helvetica,sans-serif;
+    overflow-x:hidden;
+    transition:--accent .8s;
+  }
+  body[data-level="0"]{--accent:var(--noetic)}
+  body[data-level="1"]{--accent:var(--rhet)}
+  body[data-level="2"]{--accent:var(--exis)}
+  body[data-level="3"]{--accent:var(--infra)}
 
-  <!-- Screen Wipe Transition -->
-  <div id="wipe">
-    <div class="wipe-content">
-      <span class="wt" id="wipetext">Calibrating Noetic Friction</span>
-      <div class="wipe-bar"></div>
+  .screen{display:none;max-width:880px;margin:0 auto;padding:28px 20px 80px;min-height:100vh;position:relative;z-index:2}
+  .screen.active{display:block;animation:fadeUp .55s ease}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+  .eyebrow{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--dim)}
+  h1{font-size:clamp(34px,6.6vw,56px);font-weight:300;line-height:1.05;margin:14px 0;letter-spacing:-.01em}
+  h1 b{font-weight:700;color:var(--accent)}
+  h2{font-size:clamp(21px,3.8vw,30px);font-weight:600;margin:8px 0 4px}
+  .sub{color:var(--dim);font-size:16px;line-height:1.62;max-width:62ch}
+  button{font:inherit;cursor:pointer;border:none;border-radius:8px}
+  button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .btn{background:var(--accent);color:#06121c;padding:13px 26px;font-size:15px;font-weight:600;transition:transform .15s,filter .15s}
+  .btn:hover{transform:translateY(-1px);filter:brightness(1.1)}
+  .btn.ghost{background:transparent;color:var(--dim);border:1px solid var(--line);font-weight:400}
+  .btn.ghost:hover{color:var(--text);border-color:var(--dim)}
+
+  .quotebox{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;background:var(--panel);
+    padding:20px 22px;margin:26px 0;font-size:17px;line-height:1.6;font-style:italic;max-width:64ch;backdrop-filter:blur(6px)}
+  .quotebox .ql{font-style:normal;font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:10px}
+  .credit{margin-top:30px;font-size:12.5px;color:#5d6975;line-height:1.65;max-width:70ch}
+  .navrow{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+
+  /* level progress */
+  .levelrail{display:flex;gap:7px;margin-bottom:22px;flex-wrap:wrap}
+  .levelrail .lv{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+    padding:6px 11px;border-radius:999px;border:1px solid var(--line);color:#5d6975;background:rgba(0,0,0,.25)}
+  .levelrail .lv.done{color:var(--dim);border-color:#3a4754}
+  .levelrail .lv.now{color:var(--accent);border-color:var(--accent)}
+  .levelrail .lv.infra{border-style:dashed}
+
+  /* layout: map + panel */
+  .labgrid{display:grid;grid-template-columns:minmax(260px,330px) 1fr;gap:24px;align-items:start}
+  @media(max-width:740px){.labgrid{grid-template-columns:1fr}}
+
+  /* ===== THE CALIBRATION MAP ===== */
+  .mapcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;backdrop-filter:blur(6px);position:sticky;top:16px}
+  .mapcard .mt{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
+  .map{position:relative;width:100%;aspect-ratio:1;border:1px solid var(--line);border-radius:10px;overflow:hidden;
+    background:
+      linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+    background-size:25% 25%;}
+  .map .region{position:absolute;font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;padding:7px 9px;line-height:1.5}
+  .map .r-bypass{left:0;bottom:0;color:#7dd3fc99}
+  .map .r-cal{right:0;bottom:0;color:#34d399cc;text-align:right}
+  .map .r-excl{left:0;top:0;color:#f87171cc}
+  .map .r-grind{right:0;top:0;color:#fbbf24aa;text-align:right}
+  .map .zone-cal{position:absolute;left:50%;right:6%;bottom:4%;height:18%;border:1px dashed #34d39966;border-radius:8px;background:rgba(52,211,153,.06)}
+  .map .axis-x{position:absolute;left:0;right:0;bottom:-1px;height:1px;background:var(--line)}
+  .map .dot{position:absolute;width:16px;height:16px;border-radius:50%;background:var(--accent);
+    box-shadow:0 0 18px var(--accent), 0 0 4px #fff inset;transform:translate(-50%,50%);
+    transition:left 1s cubic-bezier(.2,.8,.2,1), bottom 1s cubic-bezier(.2,.8,.2,1), background 1s;z-index:3}
+  .map .dot::after{content:"";position:absolute;inset:-7px;border-radius:50%;border:1px solid var(--accent);opacity:.5;animation:ping 2s infinite}
+  @keyframes ping{0%{transform:scale(.7);opacity:.6}100%{transform:scale(1.4);opacity:0}}
+  .axislabel{display:flex;justify-content:space-between;font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:.1em;color:var(--dim);text-transform:uppercase;margin-top:8px}
+  .ylabel{font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:.1em;color:var(--dim);text-transform:uppercase;margin-bottom:6px}
+  .readouts{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+  .readouts .ro label{font-family:ui-monospace,Menlo,monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);display:flex;justify-content:space-between}
+  .readouts .ro label b{color:var(--text);font-weight:400}
+  .robar{height:6px;background:rgba(255,255,255,.06);border-radius:3px;margin-top:5px;overflow:hidden;position:relative}
+  .robar i{display:block;height:100%;border-radius:3px;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+  #chbar i{background:linear-gradient(90deg,#0ea5e9,#34d399)}
+  #babar i{background:linear-gradient(90deg,#fbbf24,#f87171)}
+  .robar .band{position:absolute;top:-2px;bottom:-2px;border-left:1px dashed #34d39988;border-right:1px dashed #34d39988;background:rgba(52,211,153,.07)}
+  .schemastate{margin-top:14px;font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    padding:9px 12px;border-radius:8px;border:1px solid var(--line);text-align:center;color:var(--dim);transition:all .8s}
+  .schemastate.bypassed{color:#7dd3fc;border-color:#0ea5e966}
+  .schemastate.forming{color:var(--warn);border-color:#fbbf2466}
+  .schemastate.durable{color:var(--good);border-color:#34d39977;box-shadow:0 0 20px rgba(52,211,153,.15)}
+  .schemastate.excluded{color:var(--bad);border-color:#f8717177}
+
+  /* right panel: scenario + moves */
+  .scenariocard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px;backdrop-filter:blur(6px)}
+  .dimtag{display:inline-flex;align-items:center;gap:8px;font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--accent);border:1px solid var(--line);border-radius:999px;padding:6px 13px;margin-bottom:14px;background:rgba(0,0,0,.25)}
+  .dimtag.infra{border-style:dashed}
+  .dimtag .locus{color:var(--dim)}
+  .scenariocard h3{font-size:clamp(19px,3vw,25px);font-weight:600;margin-bottom:8px}
+  .scenariocard .construct{font-size:13px;color:var(--dim);font-style:italic;margin-bottom:14px}
+  .scenariocard .scen{font-size:15.5px;line-height:1.65;color:var(--text);margin-bottom:20px;max-width:62ch}
+  .moves{display:flex;flex-direction:column;gap:11px}
+  .moves button{
+    background:rgba(13,20,28,.8);border:1px solid var(--line);color:var(--text);text-align:left;
+    padding:15px 18px;border-radius:11px;font-size:14.5px;line-height:1.55;transition:border-color .2s,transform .2s;
+  }
+  .moves button:hover{border-color:var(--accent);transform:translateX(4px)}
+  .moves button small{display:block;color:var(--dim);font-size:12.5px;margin-top:5px}
+  .moves button:disabled{opacity:.42;cursor:default;transform:none}
+  .moves button.picked{border-color:var(--accent);background:rgba(56,189,248,.06)}
+  .verdict{margin-top:18px;font-size:14.5px;line-height:1.65;color:var(--dim);min-height:2.4em;max-width:62ch}
+  .verdict b{color:var(--text)}
+  .verdict .vtag{display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    padding:3px 9px;border-radius:5px;margin-bottom:8px}
+  .vtag.cal{color:var(--good);border:1px solid #34d39966}
+  .vtag.byp{color:#7dd3fc;border:1px solid #0ea5e966}
+  .vtag.exc{color:var(--bad);border:1px solid #f8717166}
+  .vtag.grd{color:var(--warn);border:1px solid #fbbf2466}
+  .nextrow{margin-top:18px;display:none}
+  .nextrow.show{display:block;animation:fadeUp .4s}
+
+  /* foundation framing */
+  .foundnote{border:1px dashed #f59e0b66;border-radius:10px;padding:14px 16px;margin-bottom:18px;font-size:13.5px;line-height:1.6;color:var(--dim);background:rgba(245,158,11,.05)}
+  .foundnote b{color:var(--infra)}
+
+  /* certificate */
+  .cert{border:1px solid var(--line);border-radius:16px;padding:30px;margin:24px 0;background:var(--panel);backdrop-filter:blur(8px);position:relative;overflow:hidden}
+  .cert::before{content:"";position:absolute;inset:0;border-radius:16px;padding:1px;
+    background:linear-gradient(135deg,transparent 30%, var(--accent), transparent 70%);
+    -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;opacity:.5;pointer-events:none}
+  .cert .cl{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.24em;text-transform:uppercase;margin-bottom:12px}
+  .cert h3{font-size:clamp(22px,4vw,32px);font-weight:300;margin-bottom:14px}
+  .cert p{font-size:15px;line-height:1.65;color:var(--dim);max-width:62ch}
+  .certstats{display:flex;gap:30px;flex-wrap:wrap;margin-top:20px}
+  .certstats div{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.12em;color:var(--dim)}
+  .certstats div b{display:block;font-size:26px;color:var(--text);font-weight:400;margin-top:5px}
+  .thesis{border-left:2px solid var(--accent);padding-left:15px;margin:24px 0;font-size:15px;line-height:1.7;color:var(--dim);max-width:64ch}
+  .thesis em{color:var(--text);font-style:normal;font-weight:600}
+
+  /* deep dive table + quiz */
+  table.summary{width:100%;border-collapse:collapse;margin-top:20px;font-size:13px}
+  table.summary th,table.summary td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top;line-height:1.5}
+  table.summary th{font-family:ui-monospace,Menlo,monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);font-weight:400;background:rgba(0,0,0,.3)}
+  table.summary td:first-child{white-space:nowrap;font-weight:600}
+  tr.noeticrow td:first-child{color:var(--noetic)}
+  tr.rhetrow td:first-child{color:var(--rhet)}
+  tr.exisrow td:first-child{color:var(--exis)}
+  tr.infrarow td{background:rgba(245,158,11,.05)}
+  tr.infrarow td:first-child{color:var(--infra)}
+  .tablescroll{overflow-x:auto}
+  .sortcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;margin-top:22px;backdrop-filter:blur(6px)}
+  .sortcard .counter{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--dim);letter-spacing:.15em;margin-bottom:12px}
+  .sortcard .scenario{font-size:clamp(16px,2.5vw,20px);line-height:1.6;min-height:4em}
+  .quizbtns{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:9px;margin-top:18px}
+  .quizbtns button{padding:12px 9px;font-size:12.5px;line-height:1.35;border-radius:8px;border:1px solid var(--line);background:rgba(13,20,28,.8);color:var(--text)}
+  .quizbtns button:hover{border-color:var(--accent)}
+  .quizbtns button.right{border-color:var(--good);background:rgba(20,36,28,.9)}
+  .quizbtns button.wrong{border-color:var(--bad);background:rgba(36,20,20,.9)}
+  .sortfeedback{margin-top:14px;font-size:14px;line-height:1.6;color:var(--dim);min-height:3em}
+  .sortfeedback b{color:var(--text)}
+  .scorebar{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--accent);letter-spacing:.1em;margin-top:8px}
+</style>
+</head>
+<body data-level="0">
+
+<!-- ============ TITLE ============ -->
+<section class="screen active" id="title">
+  <p class="eyebrow">A pedagogical friction simulation</p>
+  <h1>Friction <b>Lab</b></h1>
+  <p class="sub">In an age of generative AI, the path of least resistance leads to cognitive bypass. You are the <strong>Friction Architect</strong>. Design one assignment across the three dimensions of pedagogical friction &mdash; the Head, the Room, and the World &mdash; then secure the infrastructural conditions that make all three possible. Your instrument is the Calibration Map: productive challenge and exclusionary barrier are <em>different axes</em>, not two ends of one dial.</p>
+  <div class="quotebox">
+    <span class="ql">The Architect's Charge</span>
+    &ldquo;We must design learning environments where the output is the artifact of learning, not a proxy that displaces it. Calibrate for desirable difficulty &mdash; and never mistake a barrier for a challenge.&rdquo;
+  </div>
+  <div class="navrow">
+    <button class="btn" onclick="startLab()">Begin the 5-minute calibration challenge &rarr;</button>
+    <button class="btn ghost" onclick="location.href='https://minerclass.github.io/nlu_ai-ed-conference-pres26/#9'">Return to presentation</button>
+  </div>
+  <p class="credit">Framework proposed by Micah J. Miner, <em>Pedagogical Friction</em>: three learner-facing dimensions (noetic, rhetorical, existential) with infrastructural friction as their condition of possibility. Synthesizing Walter J. Ong's media ecology with productive failure (Kapur), desirable difficulties (Bjork), and cognitive load theory (Sweller).</p>
+</section>
+
+<!-- ============ LAB ============ -->
+<section class="screen" id="lab">
+  <div class="levelrail" id="levelrail"></div>
+  <div class="labgrid">
+    <div class="mapcard">
+      <div class="mt">Calibration Map</div>
+      <div class="ylabel">&uarr; Exclusionary barrier</div>
+      <div class="map" id="map">
+        <span class="region r-excl">Exclusion<br><span style="opacity:.65">barrier without learning</span></span>
+        <span class="region r-grind">Grind<br><span style="opacity:.65">struggle + lockout</span></span>
+        <span class="region r-bypass">Bypass<br><span style="opacity:.65">no schema built</span></span>
+        <span class="region r-cal">Calibrated<br><span style="opacity:.65">desirable difficulty</span></span>
+        <div class="zone-cal"></div>
+        <div class="dot" id="dot" style="left:6%;bottom:6%"></div>
+      </div>
+      <div class="axislabel"><span>Low challenge</span><span>Productive challenge &rarr;</span></div>
+      <div class="readouts">
+        <div class="ro"><label>Productive challenge <b id="chnum">0%</b></label>
+          <div class="robar" id="chbar"><div class="band" style="left:50%;width:30%"></div><i style="width:0%"></i></div></div>
+        <div class="ro"><label>Exclusionary barrier <b id="banum">0%</b></label>
+          <div class="robar" id="babar"><div class="band" style="left:0;width:20%"></div><i style="width:0%"></i></div></div>
+      </div>
+      <div class="schemastate bypassed" id="schemastate">Schema assembly: bypassed</div>
+    </div>
+
+    <div class="scenariocard">
+      <div class="dimtag" id="dimtag"></div>
+      <h3 id="levtitle"></h3>
+      <div class="construct" id="levconstruct"></div>
+      <p class="scen" id="levscen"></p>
+      <div class="moves" id="moves"></div>
+      <div class="verdict" id="verdict"></div>
+      <div class="nextrow" id="nextrow"><button class="btn" id="nextbtn" onclick="nextLevel()">Continue &rarr;</button></div>
     </div>
   </div>
+</section>
 
-  <!-- Global Audio Control Button -->
-  <button id="soundBtn" onclick="toggleSound()">SOUND OFF</button>
-
-  <div class="app-container">
-    <!-- ==========================================
-         SCREEN 1: TITLE SCREEN
-         ========================================== -->
-    <section class="screen active" id="titleScreen">
-      <p class="eyebrow">A Pedagogical Friction Simulation Game</p>
-      <h1>Friction Lab</h1>
-      <p class="sub">In an age of generative AI, the path of least resistance leads to cognitive bypass. As a **Friction Architect**, you must calibrate learning environments. Journey through the four dimensions of pedagogical friction, face the calibration challenge, and balance productive cognitive struggle against exclusionary barriers.</p>
-      
-      <div class="messageframe title-message" style="display: flex; gap: 20px; align-items: center;">
-        <i class="fa-solid fa-screwdriver-wrench char-avatar-icon" style="font-size: 2.5rem; color: var(--accent); filter: drop-shadow(0 0 8px rgba(232, 160, 76, 0.4));"></i>
-        <div style="flex-grow: 1;">
-          <div class="mflabel">
-            <span>The Architect's Charge &middot; Designing for Schema Construction</span>
-            <span class="auth">Core Construct: Preserved struggle</span>
-          </div>
-          <div class="quote-text">&ldquo;We must design learning environments where the output is the artifact of thinking, not a proxy that displaces it. Calibrate for desirable difficulty.&rdquo;</div>
-        </div>
-      </div>
-
-      <div class="intro-actions">
-        <button class="btn btn-glow" onclick="startGame()">ENTER THE FRICTION LAB &rarr;</button>
-      </div>
-
-      <p class="credit">Framework proposed by Micah J. Miner, *Pedagogical Friction*. Synthesizing Walter J. Ong's media ecology with learning science principles of productive failure (Kapur), desirable difficulties (Bjork), and cognitive load theory (Sweller).</p>
-    </section>
-
-    <!-- ==========================================
-         SCREEN 2: PLAY SCREEN
-         ========================================== -->
-    <section class="screen" id="gameScreen">
-      <!-- HUD Header -->
-      <div class="hud">
-        <div class="hud-top">
-          <span class="phasechip" id="phasechip">Level 1 &middot; Noetic Friction</span>
-          <span class="round-counter" id="roundCounter">Stage 1 of 5</span>
-        </div>
-        
-        <div class="hud-stats-grid">
-          <!-- Stat 1: Cognitive Challenge -->
-          <div class="stat-card">
-            <div class="stat-header">
-              <label>COGNITIVE CHALLENGE</label>
-              <span class="stat-num" id="fidnum">0%</span>
-            </div>
-            <div class="bar-container" id="fidbar">
-              <div class="bar-fill" style="width: 0%;"></div>
-            </div>
-            <span class="stat-desc">Productive friction (Target: 50% - 80%)</span>
-          </div>
-
-          <!-- Stat 2: Mechanical Barrier -->
-          <div class="stat-card">
-            <div class="stat-header">
-              <label>MECHANICAL BARRIER</label>
-              <span class="stat-num" id="reachnum">0%</span>
-            </div>
-            <div class="bar-container" id="reachbar">
-              <div class="bar-fill" style="width: 0%;"></div>
-            </div>
-            <span class="stat-desc">Exclusionary friction (Target: &lt; 20%)</span>
-          </div>
-
-          <!-- Stat 3: Learning State -->
-          <div class="stat-card author-card" id="authstat">
-            <div class="stat-header">
-              <label>SCHEMA ASSEMBLY</label>
-              <span class="stat-num" id="authnum">Bypassed</span>
-            </div>
-            <div class="author-light-container">
-              <span class="indicator-dot red" id="authindicator"></span>
-              <span class="stat-desc" id="authdesc">No learning taking place</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Main Game Console -->
-      <div class="game-console">
-        <!-- Tutor Guide Panel -->
-        <div class="character-card glass-subpanel" id="characterCard">
-          <div class="char-avatar-container">
-             <i class="fa-solid fa-graduation-cap" id="charIcon" style="font-size: 2.2rem; color: var(--accent);"></i>
-          </div>
-          <div class="char-info">
-            <h4 class="char-name" id="charName">Tutor Architect</h4>
-            <p class="char-dialogue" id="charDialogue">Welcome to the Friction Lab. Adjust the slider inputs to calibrate the environment for the learning goal.</p>
-          </div>
-        </div>
-
-        <!-- Interactive Game Viewport -->
-        <div class="viewport-wrapper">
-          <div class="viewport-title" id="viewportTitle">Calibration Panel</div>
-          <div class="game-viewport" id="gameViewport">
-            <!-- Dynamically injected canvas or controls -->
-          </div>
-        </div>
-
-        <!-- Metric Feedback Dashboard -->
-        <div class="messageframe game-message-frame">
-          <div class="mflabel">
-            <span>Environment Calibration Assessment</span>
-            <span class="auth" id="authflag">Status: uncalibrated</span>
-          </div>
-          <div id="headline" class="message-headline">Frictionless Bypass Mode Active</div>
-          <div id="messageText" class="message-body">Adjust parameters to ensure the student engages in effortful schema construction while remaining supported.</div>
-        </div>
-
-        <!-- Control & Action Panel -->
-        <div class="control-panel">
-          <h2 id="roundtitle">Noetic Calibration</h2>
-          <p class="prompt" id="roundprompt">Drag the sliders to balance cognitive challenge against accessibility support. Avoid locking out learners or enabling complete bypass.</p>
-          
-          <!-- Choices or Sliders injected here -->
-          <div class="opts" id="opts"></div>
-
-          <!-- Output Feedback -->
-          <div class="outcome" id="outcome"></div>
-
-          <!-- Proceed Row -->
-          <div class="nextrow" id="nextrow">
-            <button class="btn" id="nextbtn" onclick="advance()">CONTINUE CALIBRATION &rarr;</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==========================================
-         SCREEN 3: FINALE SCREEN
-         ========================================== -->
-    <section class="screen" id="finaleScreen">
-      <p class="eyebrow">The Lab Complete</p>
-      <h2 id="endtitle">Friction Calibration Certified</h2>
-      
-      <div class="messageframe final-message" style="display: flex; gap: 20px; align-items: center;">
-        <i class="fa-solid fa-certificate" style="font-size: 3rem; color: var(--accent); filter: drop-shadow(0 0 10px rgba(232, 160, 76, 0.4));"></i>
-        <div style="flex-grow: 1;">
-          <div class="mflabel" id="endauth">DESIGN CERTIFICATE: COMPLETED</div>
-          <div class="message-body" id="endmessage">You have calibrated the environment successfully across noetic, rhetorical, existential, and infrastructural axes.</div>
-        </div>
-      </div>
-
-      <div class="scoreline">
-        <div class="score-card">
-          <span class="label">MEAN CHALLENGE</span>
-          <span class="val" id="endfid">65%</span>
-        </div>
-        <div class="score-card">
-          <span class="label">MEAN ACCESSIBILITY</span>
-          <span class="val" id="endreach">92%</span>
-        </div>
-        <div class="score-card">
-          <span class="label">SCHEMA INTEGRITY</span>
-          <span class="val" id="endauthor">High</span>
-        </div>
-      </div>
-
-      <p class="thesis" id="endthesis">A calibrated curriculum preserves productive cognitive struggle (desirable difficulties) while dismantling exclusionary systemic barriades.</p>
-      
-      <div class="thesis" style="border-color:#a78bfa; background:rgba(167,139,250,0.04)">
-        Friction is not a mechanical bug to be smoothed away by automated text engines. It is the core resistance that makes human understanding durable. By differentiating productive struggle (noetic, rhetorical, and existential work) from exclusionary structural obstacles (transcription fatigue or language barriers), educators can integrate AI as a critical partner rather than a bypass conduit.
-      </div>
-
-      <div class="navrow">
-        <button class="btn" onclick="go('deepScreen','end')">PLAY DEEP-DIVE SANDBOX &rarr;</button>
-        <button class="btn ghost" onclick="location.reload()">RE-CALIBRATE ENVIRONMENT</button>
-      </div>
-    </section>
-
-    <!-- ==========================================
-         SCREEN 4: DEEP DIVE & ACADEMIC SANDBOX
-         ========================================== -->
-    <section class="screen" id="deepScreen">
-      <p class="eyebrow">Academic Deep Dive</p>
-      <h2>The Pedagogical Friction Framework</h2>
-      
-      <div class="tablescroll">
-        <table class="summary">
-          <thead>
-            <tr>
-              <th>Dimension</th>
-              <th>Locus</th>
-              <th>Preserves</th>
-              <th>Threatened By (Bypass)</th>
-              <th>Preservation Strategy</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Noetic Friction</td>
-              <td>The Head</td>
-              <td>Internal cognitive labor &amp; Piagetian schema accommodation</td>
-              <td>Noetic displacement: instant output mutes the signal of "not knowing"</td>
-              <td>Require handwriting/drafts before AI use; grade thinking trajectories</td>
-            </tr>
-            <tr>
-              <td>Rhetorical Friction</td>
-              <td>The Room</td>
-              <td>Dialogic struggle of defending claims to other minds</td>
-              <td>Rhetorical saturation: agreeable AI conversational partners replace peers</td>
-              <td>Socratic seminars, peer critiques, unpredictable human dialogue panels</td>
-            </tr>
-            <tr>
-              <td>Existential Friction</td>
-              <td>The World</td>
-              <td>Embodied accountability and personal authorial stakes</td>
-              <td>Existential abstraction: claims detached from an accountable claimant</td>
-              <td>Oral defenses, authorial stance requirements, real stakes in presentations</td>
-            </tr>
-            <tr>
-              <td>Infrastructural Friction</td>
-              <td>The System</td>
-              <td>Policies, grading criteria, and time structures allowing struggle</td>
-              <td>Technical compliance: policies focus only on data security &amp; detection</td>
-              <td>Friction-friendly policies; grading rubrics focused on process, not just final proxy</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Interactive sorting game: Scenario Calibrator Sort -->
-      <div class="sortcard glass-panel">
-        <div class="sort-header">
-          <h3>Interactive Sandbox Quiz: Match the Friction Move</h3>
-          <span class="counter" id="sortcounter">SCENARIO 1 OF 10</span>
-        </div>
-        <p class="scenario" id="scenariotext">Loading scenario...</p>
-        <div class="phasebtns" id="phasebtns">
-          <!-- Injected by JS -->
-        </div>
-        <div class="sortfeedback" id="sortfeedback"></div>
-        <div class="scorebar-container">
-          <div class="scorebar" id="scorebar">SCORE: 0 / 0</div>
-          <button class="btn btn-glow" id="sortnext" onclick="nextScenario()" style="display:none">NEXT SCENARIO &rarr;</button>
-        </div>
-      </div>
-
-      <div class="navrow">
-        <button class="btn ghost" onclick="location.reload()">BACK TO TITLE SCREEN</button>
-      </div>
-    </section>
+<!-- ============ RESULTS ============ -->
+<section class="screen" id="results">
+  <p class="eyebrow">The lab assessment</p>
+  <h2 id="resulttitle"></h2>
+  <div class="cert">
+    <div class="cl" id="certlabel"></div>
+    <h3 id="certhead"></h3>
+    <p id="certdesc"></p>
+    <div class="certstats">
+      <div>MEAN CHALLENGE<b id="statch"></b></div>
+      <div>MEAN BARRIER<b id="statba"></b></div>
+      <div>FOUNDATION<b id="statfo"></b></div>
+      <div>SCHEMA<b id="statsc"></b></div>
+    </div>
   </div>
+  <p class="thesis" id="resultthesis"></p>
+  <p class="thesis" style="border-color:var(--infra)">One more thing the map showed you: <em>Exclusion sits on its own axis.</em> A classroom can be low-challenge and still lock learners out &mdash; banning a dictation tool adds no cognitive work, it only adds a wall. Removing exclusionary friction and calibrating productive friction are two different design acts, and conflating them is how schools end up smoothing away the struggle that learning requires while leaving the barriers standing.</p>
+  <div class="navrow">
+    <button class="btn" onclick="go('deep')">Academic deep dive &rarr;</button>
+    <button class="btn ghost" onclick="location.href='https://minerclass.github.io/nlu_ai-ed-conference-pres26/#9'">Return to presentation</button>
+    <button class="btn ghost" onclick="location.reload()">Re-calibrate the environment</button>
+  </div>
+  <p class="credit">Framework: Miner, <em>Pedagogical Friction</em>. micahminer.com</p>
+</section>
 
-  <script src="game.js"></script>
+<!-- ============ DEEP DIVE ============ -->
+<section class="screen" id="deep">
+  <p class="eyebrow">Academic deep dive</p>
+  <h2>The Pedagogical Friction Framework</h2>
+  <p class="sub" style="margin-top:8px">Three learner-facing dimensions, and the infrastructural condition of possibility beneath them.</p>
+  <div class="tablescroll">
+  <table class="summary">
+    <thead>
+      <tr><th>Dimension</th><th>Locus</th><th>Preserves</th><th>Threatened by (bypass)</th><th>Preservation strategy</th></tr>
+    </thead>
+    <tbody>
+      <tr class="noeticrow"><td>Noetic Friction</td><td>The Head</td><td>Internal cognitive labor &amp; schema accommodation</td><td>Noetic displacement: instant output mutes the signal of "not knowing"</td><td>Handwriting/drafts before AI use; grade thinking trajectories</td></tr>
+      <tr class="rhetrow"><td>Rhetorical Friction</td><td>The Room</td><td>Dialogic struggle of defending claims to other minds</td><td>Rhetorical saturation: agreeable AI partners replace unpredictable peers</td><td>Socratic seminars, peer critique, live human dialogue</td></tr>
+      <tr class="exisrow"><td>Existential Friction</td><td>The World</td><td>Embodied accountability and personal authorial stakes</td><td>Existential abstraction: claims detached from an accountable claimant</td><td>Oral defenses, authorial stance, real audiences</td></tr>
+      <tr class="infrarow"><td>Infrastructural Friction <em style="font-weight:400;opacity:.8">(condition of possibility &mdash; not a fourth peer)</em></td><td>The System</td><td>Policies, grading criteria, and time structures that allow the three dimensions above to exist</td><td>Technical compliance: policy reduced to data security &amp; detection</td><td>Process-focused rubrics; friction-friendly policy; protected time for struggle</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="sub" style="margin-top:22px">Final challenge: classify the design move. The traps are the moves that <em>feel</em> rigorous but sit on the wrong axis.</p>
+  <div class="sortcard">
+    <div class="counter" id="sortcounter"></div>
+    <div class="scenario" id="scenariotext"></div>
+    <div class="quizbtns" id="quizbtns"></div>
+    <div class="sortfeedback" id="sortfeedback"></div>
+    <div class="scorebar" id="scorebar"></div>
+  </div>
+  <div class="navrow">
+    <button class="btn" id="sortnext" onclick="nextScenario()" style="display:none">Next scenario &rarr;</button>
+    <button class="btn ghost" onclick="location.reload()">Back to title screen</button>
+  </div>
+</section>
+
+<script src="game.js"></script>
 </body>
 </html>
