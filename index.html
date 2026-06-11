@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Friction Lab: The Calibration Challenge</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-env="title">
+  <!-- Interactive Particle Background Canvas -->
+  <canvas id="fx"></canvas>
+  <div id="vignette"></div>
+  <div id="scan"></div>
+
+  <!-- Screen Wipe Transition -->
+  <div id="wipe">
+    <div class="wipe-content">
+      <span class="wt" id="wipetext">Calibrating Noetic Friction</span>
+      <div class="wipe-bar"></div>
+    </div>
+  </div>
+
+  <!-- Global Audio Control Button -->
+  <button id="soundBtn" onclick="toggleSound()">SOUND OFF</button>
+
+  <div class="app-container">
+    <!-- ==========================================
+         SCREEN 1: TITLE SCREEN
+         ========================================== -->
+    <section class="screen active" id="titleScreen">
+      <p class="eyebrow">A Pedagogical Friction Simulation Game</p>
+      <h1>Friction Lab</h1>
+      <p class="sub">In an age of generative AI, the path of least resistance leads to cognitive bypass. As a **Friction Architect**, you must calibrate learning environments. Journey through the four dimensions of pedagogical friction, face the calibration challenge, and balance productive cognitive struggle against exclusionary barriers.</p>
+      
+      <div class="messageframe title-message" style="display: flex; gap: 20px; align-items: center;">
+        <i class="fa-solid fa-screwdriver-wrench char-avatar-icon" style="font-size: 2.5rem; color: var(--accent); filter: drop-shadow(0 0 8px rgba(232, 160, 76, 0.4));"></i>
+        <div style="flex-grow: 1;">
+          <div class="mflabel">
+            <span>The Architect's Charge &middot; Designing for Schema Construction</span>
+            <span class="auth">Core Construct: Preserved struggle</span>
+          </div>
+          <div class="quote-text">&ldquo;We must design learning environments where the output is the artifact of thinking, not a proxy that displaces it. Calibrate for desirable difficulty.&rdquo;</div>
+        </div>
+      </div>
+
+      <div class="intro-actions">
+        <button class="btn btn-glow" onclick="startGame()">ENTER THE FRICTION LAB &rarr;</button>
+      </div>
+
+      <p class="credit">Framework proposed by Micah J. Miner, *Pedagogical Friction*. Synthesizing Walter J. Ong's media ecology with learning science principles of productive failure (Kapur), desirable difficulties (Bjork), and cognitive load theory (Sweller).</p>
+    </section>
+
+    <!-- ==========================================
+         SCREEN 2: PLAY SCREEN
+         ========================================== -->
+    <section class="screen" id="gameScreen">
+      <!-- HUD Header -->
+      <div class="hud">
+        <div class="hud-top">
+          <span class="phasechip" id="phasechip">Level 1 &middot; Noetic Friction</span>
+          <span class="round-counter" id="roundCounter">Stage 1 of 5</span>
+        </div>
+        
+        <div class="hud-stats-grid">
+          <!-- Stat 1: Cognitive Challenge -->
+          <div class="stat-card">
+            <div class="stat-header">
+              <label>COGNITIVE CHALLENGE</label>
+              <span class="stat-num" id="fidnum">0%</span>
+            </div>
+            <div class="bar-container" id="fidbar">
+              <div class="bar-fill" style="width: 0%;"></div>
+            </div>
+            <span class="stat-desc">Productive friction (Target: 50% - 80%)</span>
+          </div>
+
+          <!-- Stat 2: Mechanical Barrier -->
+          <div class="stat-card">
+            <div class="stat-header">
+              <label>MECHANICAL BARRIER</label>
+              <span class="stat-num" id="reachnum">0%</span>
+            </div>
+            <div class="bar-container" id="reachbar">
+              <div class="bar-fill" style="width: 0%;"></div>
+            </div>
+            <span class="stat-desc">Exclusionary friction (Target: &lt; 20%)</span>
+          </div>
+
+          <!-- Stat 3: Learning State -->
+          <div class="stat-card author-card" id="authstat">
+            <div class="stat-header">
+              <label>SCHEMA ASSEMBLY</label>
+              <span class="stat-num" id="authnum">Bypassed</span>
+            </div>
+            <div class="author-light-container">
+              <span class="indicator-dot red" id="authindicator"></span>
+              <span class="stat-desc" id="authdesc">No learning taking place</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Game Console -->
+      <div class="game-console">
+        <!-- Tutor Guide Panel -->
+        <div class="character-card glass-subpanel" id="characterCard">
+          <div class="char-avatar-container">
+             <i class="fa-solid fa-graduation-cap" id="charIcon" style="font-size: 2.2rem; color: var(--accent);"></i>
+          </div>
+          <div class="char-info">
+            <h4 class="char-name" id="charName">Tutor Architect</h4>
+            <p class="char-dialogue" id="charDialogue">Welcome to the Friction Lab. Adjust the slider inputs to calibrate the environment for the learning goal.</p>
+          </div>
+        </div>
+
+        <!-- Interactive Game Viewport -->
+        <div class="viewport-wrapper">
+          <div class="viewport-title" id="viewportTitle">Calibration Panel</div>
+          <div class="game-viewport" id="gameViewport">
+            <!-- Dynamically injected canvas or controls -->
+          </div>
+        </div>
+
+        <!-- Metric Feedback Dashboard -->
+        <div class="messageframe game-message-frame">
+          <div class="mflabel">
+            <span>Environment Calibration Assessment</span>
+            <span class="auth" id="authflag">Status: uncalibrated</span>
+          </div>
+          <div id="headline" class="message-headline">Frictionless Bypass Mode Active</div>
+          <div id="messageText" class="message-body">Adjust parameters to ensure the student engages in effortful schema construction while remaining supported.</div>
+        </div>
+
+        <!-- Control & Action Panel -->
+        <div class="control-panel">
+          <h2 id="roundtitle">Noetic Calibration</h2>
+          <p class="prompt" id="roundprompt">Drag the sliders to balance cognitive challenge against accessibility support. Avoid locking out learners or enabling complete bypass.</p>
+          
+          <!-- Choices or Sliders injected here -->
+          <div class="opts" id="opts"></div>
+
+          <!-- Output Feedback -->
+          <div class="outcome" id="outcome"></div>
+
+          <!-- Proceed Row -->
+          <div class="nextrow" id="nextrow">
+            <button class="btn" id="nextbtn" onclick="advance()">CONTINUE CALIBRATION &rarr;</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SCREEN 3: FINALE SCREEN
+         ========================================== -->
+    <section class="screen" id="finaleScreen">
+      <p class="eyebrow">The Lab Complete</p>
+      <h2 id="endtitle">Friction Calibration Certified</h2>
+      
+      <div class="messageframe final-message" style="display: flex; gap: 20px; align-items: center;">
+        <i class="fa-solid fa-certificate" style="font-size: 3rem; color: var(--accent); filter: drop-shadow(0 0 10px rgba(232, 160, 76, 0.4));"></i>
+        <div style="flex-grow: 1;">
+          <div class="mflabel" id="endauth">DESIGN CERTIFICATE: COMPLETED</div>
+          <div class="message-body" id="endmessage">You have calibrated the environment successfully across noetic, rhetorical, existential, and infrastructural axes.</div>
+        </div>
+      </div>
+
+      <div class="scoreline">
+        <div class="score-card">
+          <span class="label">MEAN CHALLENGE</span>
+          <span class="val" id="endfid">65%</span>
+        </div>
+        <div class="score-card">
+          <span class="label">MEAN ACCESSIBILITY</span>
+          <span class="val" id="endreach">92%</span>
+        </div>
+        <div class="score-card">
+          <span class="label">SCHEMA INTEGRITY</span>
+          <span class="val" id="endauthor">High</span>
+        </div>
+      </div>
+
+      <p class="thesis" id="endthesis">A calibrated curriculum preserves productive cognitive struggle (desirable difficulties) while dismantling exclusionary systemic barriades.</p>
+      
+      <div class="thesis" style="border-color:#a78bfa; background:rgba(167,139,250,0.04)">
+        Friction is not a mechanical bug to be smoothed away by automated text engines. It is the core resistance that makes human understanding durable. By differentiating productive struggle (noetic, rhetorical, and existential work) from exclusionary structural obstacles (transcription fatigue or language barriers), educators can integrate AI as a critical partner rather than a bypass conduit.
+      </div>
+
+      <div class="navrow">
+        <button class="btn" onclick="go('deepScreen','end')">PLAY DEEP-DIVE SANDBOX &rarr;</button>
+        <button class="btn ghost" onclick="location.reload()">RE-CALIBRATE ENVIRONMENT</button>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SCREEN 4: DEEP DIVE & ACADEMIC SANDBOX
+         ========================================== -->
+    <section class="screen" id="deepScreen">
+      <p class="eyebrow">Academic Deep Dive</p>
+      <h2>The Pedagogical Friction Framework</h2>
+      
+      <div class="tablescroll">
+        <table class="summary">
+          <thead>
+            <tr>
+              <th>Dimension</th>
+              <th>Locus</th>
+              <th>Preserves</th>
+              <th>Threatened By (Bypass)</th>
+              <th>Preservation Strategy</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Noetic Friction</td>
+              <td>The Head</td>
+              <td>Internal cognitive labor &amp; Piagetian schema accommodation</td>
+              <td>Noetic displacement: instant output mutes the signal of "not knowing"</td>
+              <td>Require handwriting/drafts before AI use; grade thinking trajectories</td>
+            </tr>
+            <tr>
+              <td>Rhetorical Friction</td>
+              <td>The Room</td>
+              <td>Dialogic struggle of defending claims to other minds</td>
+              <td>Rhetorical saturation: agreeable AI conversational partners replace peers</td>
+              <td>Socratic seminars, peer critiques, unpredictable human dialogue panels</td>
+            </tr>
+            <tr>
+              <td>Existential Friction</td>
+              <td>The World</td>
+              <td>Embodied accountability and personal authorial stakes</td>
+              <td>Existential abstraction: claims detached from an accountable claimant</td>
+              <td>Oral defenses, authorial stance requirements, real stakes in presentations</td>
+            </tr>
+            <tr>
+              <td>Infrastructural Friction</td>
+              <td>The System</td>
+              <td>Policies, grading criteria, and time structures allowing struggle</td>
+              <td>Technical compliance: policies focus only on data security &amp; detection</td>
+              <td>Friction-friendly policies; grading rubrics focused on process, not just final proxy</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Interactive sorting game: Scenario Calibrator Sort -->
+      <div class="sortcard glass-panel">
+        <div class="sort-header">
+          <h3>Interactive Sandbox Quiz: Match the Friction Move</h3>
+          <span class="counter" id="sortcounter">SCENARIO 1 OF 10</span>
+        </div>
+        <p class="scenario" id="scenariotext">Loading scenario...</p>
+        <div class="phasebtns" id="phasebtns">
+          <!-- Injected by JS -->
+        </div>
+        <div class="sortfeedback" id="sortfeedback"></div>
+        <div class="scorebar-container">
+          <div class="scorebar" id="scorebar">SCORE: 0 / 0</div>
+          <button class="btn btn-glow" id="sortnext" onclick="nextScenario()" style="display:none">NEXT SCENARIO &rarr;</button>
+        </div>
+      </div>
+
+      <div class="navrow">
+        <button class="btn ghost" onclick="location.reload()">BACK TO TITLE SCREEN</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
