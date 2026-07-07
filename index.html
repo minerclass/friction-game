@@ -163,15 +163,73 @@
   .tablescroll{overflow-x:auto}
   .sortcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;margin-top:22px;backdrop-filter:blur(6px)}
   .sortcard .counter{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--dim);letter-spacing:.15em;margin-bottom:12px}
-  .sortcard .scenario{font-size:clamp(16px,2.5vw,20px);line-height:1.6;min-height:4em}
-  .quizbtns{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:9px;margin-top:18px}
-  .quizbtns button{padding:12px 9px;font-size:12.5px;line-height:1.35;border-radius:8px;border:1px solid var(--line);background:rgba(13,20,28,.8);color:var(--text)}
-  .quizbtns button:hover{border-color:var(--accent)}
-  .quizbtns button.right{border-color:var(--good);background:rgba(20,36,28,.9)}
-  .quizbtns button.wrong{border-color:var(--bad);background:rgba(36,20,20,.9)}
+
+  /* Quiz drag/drop map layout */
+  .quiz-grid {display:grid;grid-template-columns:300px 1fr;gap:24px;margin-top:16px;align-items:start}
+  @media(max-width:680px){.quiz-grid {grid-template-columns:1fr}}
+
+  .draggable-card {
+    background:rgba(255,255,255,.02);
+    border:2px dashed var(--accent);
+    border-radius:12px;
+    padding:22px;
+    font-size:15.5px;
+    line-height:1.6;
+    cursor:grab;
+    min-height:110px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    transition:transform .15s,box-shadow .15s,background-color .15s;
+    user-select:none;
+  }
+  .draggable-card:hover {
+    background:rgba(56,189,248,.03);
+    transform:scale(1.01);
+  }
+  .draggable-card:active {
+    cursor:grabbing;
+  }
+
+  .drop-zone {
+    z-index:5;
+    transition:background-color .2s,outline .2s;
+  }
+  .drop-zone.dragover[data-zone="cal"] { background:rgba(52,211,153,.15)!important }
+  .drop-zone.dragover[data-zone="excl"] { background:rgba(248,113,113,.15)!important }
+  .drop-zone.dragover[data-zone="bypass"] { background:rgba(14,165,233,.15)!important }
+  .drop-zone.dragover[data-zone="infra"] { background:rgba(245,158,11,.15)!important }
+
+  .drop-zone.right {
+    background:rgba(52,211,153,.15)!important;
+    outline:2px solid var(--good)!important;
+    outline-offset:-2px;
+  }
+  .drop-zone.wrong {
+    background:rgba(248,113,113,.15)!important;
+    outline:2px solid var(--bad)!important;
+    outline-offset:-2px;
+  }
+
+  .quizbtns {display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:12px}
+  .quizbtns button {
+    padding:12px 10px;
+    font-size:12.5px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:rgba(13,20,28,.8);
+    color:var(--text);
+    text-align:center;
+    transition:border-color .15s,background-color .15s;
+  }
+  .quizbtns button:hover:not(:disabled) { border-color:var(--accent) }
+  .quizbtns button.right { border-color:var(--good)!important;background:rgba(52,211,153,.15)!important;color:#fff }
+  .quizbtns button.wrong { border-color:var(--bad)!important;background:rgba(248,113,113,.15)!important;color:#fff }
+
   .sortfeedback{margin-top:14px;font-size:14px;line-height:1.6;color:var(--dim);min-height:3em}
   .sortfeedback b{color:var(--text)}
-  .scorebar{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--accent);letter-spacing:.1em;margin-top:8px}
+  .scorebar{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:var(--accent);letter-spacing:.08em;margin-top:8px;text-transform:uppercase}
 </style>
 </head>
 <body data-level="0">
@@ -232,27 +290,54 @@
 <!-- ============ RESULTS ============ -->
 <section class="screen" id="results">
   <p class="eyebrow">The lab assessment</p>
-  <h2 id="resulttitle"></h2>
-  <div class="cert">
-    <div class="cl" id="certlabel"></div>
-    <h3 id="certhead"></h3>
-    <p id="certdesc"></p>
-    <div class="certstats">
-      <div>MEAN CHALLENGE<b id="statch"></b></div>
-      <div>MEAN BARRIER<b id="statba"></b></div>
-      <div>FOUNDATION<b id="statfo"></b></div>
-      <div>SCHEMA<b id="statsc"></b></div>
+  <h2 id="resulttitle" style="margin-bottom: 20px;"></h2>
+  <div class="labgrid">
+    <!-- Left Column: Calibration Map (with trajectory) -->
+    <div class="mapcard">
+      <div class="mt">Calibration Journey</div>
+      <div class="ylabel">&uarr; Exclusionary barrier</div>
+      <div class="map" id="results-map" style="position:relative; width:100%; aspect-ratio:1;">
+        <span class="region r-excl" style="position:absolute; left:0; top:0; font-family:ui-monospace,monospace; font-size:9px; padding:7px; color:var(--bad);">Exclusion<br><span style="opacity:.65">barrier without learning</span></span>
+        <span class="region r-grind" style="position:absolute; right:0; top:0; font-family:ui-monospace,monospace; font-size:9px; padding:7px; color:var(--warn); text-align:right;">Grind<br><span style="opacity:.65">struggle + lockout</span></span>
+        <span class="region r-bypass" style="position:absolute; left:0; bottom:0; font-family:ui-monospace,monospace; font-size:9px; padding:7px; color:#7dd3fc;">Bypass<br><span style="opacity:.65">no schema built</span></span>
+        <span class="region r-cal" style="position:absolute; right:0; bottom:0; font-family:ui-monospace,monospace; font-size:9px; padding:7px; color:var(--good); text-align:right;">Calibrated<br><span style="opacity:.65">desirable difficulty</span></span>
+        <div class="zone-cal" style="position:absolute; left:50%; right:6%; bottom:4%; height:18%; border:1px dashed #34d39966; border-radius:8px; background:rgba(52,211,153,.06);"></div>
+        <svg id="trajectory-svg" viewBox="0 0 100 100" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:2; overflow:visible;"></svg>
+        <div class="dot" id="results-dot" style="position:absolute; width:16px; height:16px; border-radius:50%; background:var(--accent); box-shadow:0 0 18px var(--accent), 0 0 4px #fff inset; transform:translate(-50%,50%); transition:left 0.7s cubic-bezier(.2,.8,.2,1), bottom 0.7s cubic-bezier(.2,.8,.2,1); z-index:3; left:6%; bottom:6%"></div>
+      </div>
+      <div class="axislabel"><span>Low challenge</span><span>Productive challenge &rarr;</span></div>
+      <div class="readouts">
+        <div class="ro"><label>Productive challenge <b id="results-chnum">0%</b></label>
+          <div class="robar" id="results-chbar"><div class="band" style="left:50%;width:30%"></div><i style="width:0%"></i></div></div>
+        <div class="ro"><label>Exclusionary barrier <b id="results-banum">0%</b></label>
+          <div class="robar" id="results-babar"><div class="band" style="left:0;width:20%"></div><i style="width:0%"></i></div></div>
+      </div>
+    </div>
+
+    <!-- Right Column: Certificate and Thesis -->
+    <div>
+      <div class="cert">
+        <div class="cl" id="certlabel"></div>
+        <h3 id="certhead"></h3>
+        <p id="certdesc"></p>
+        <div class="certstats">
+          <div>MEAN CHALLENGE<b id="statch"></b></div>
+          <div>MEAN BARRIER<b id="statba"></b></div>
+          <div>FOUNDATION<b id="statfo"></b></div>
+          <div>SCHEMA<b id="statsc"></b></div>
+        </div>
+      </div>
+      <p style="font-size: 0.8rem; color: var(--dim); text-align: center; margin-top: 10px; font-style: italic; margin-bottom: 20px;">*Note: All scores, stats, and achievements are illustrative models of the pedagogical friction framework, not validated learning assessment instruments.</p>
+      <p class="thesis" id="resultthesis"></p>
+      <p class="thesis" style="border-color:var(--infra)">One more thing the map showed you: <em>Exclusion sits on its own axis.</em> A classroom can be low-challenge and still lock learners out &mdash; banning a dictation tool adds no cognitive work, it only adds a wall. Removing exclusionary friction and calibrating productive friction are two different design acts, and conflating them is how schools end up smoothing away the struggle that learning requires while leaving the barriers standing.</p>
+      <div class="navrow">
+        <button class="btn" onclick="go('deep')">Academic deep dive &rarr;</button>
+        <button class="btn ghost" onclick="location.href='https://minerclass.github.io/nlu_ai-ed-conference-pres26/#9'">Return to presentation</button>
+        <button class="btn ghost" onclick="location.reload()">Re-calibrate the environment</button>
+      </div>
+      <p class="credit" style="margin-top: 20px;">Framework: Miner, <em>Pedagogical Friction</em>. micahminer.com</p>
     </div>
   </div>
-  <p style="font-size: 0.8rem; color: var(--dim); text-align: center; margin-top: 10px; font-style: italic;">*Note: All scores and calibrations are illustrative simulations for pedagogical training and have not been statistically validated.</p>
-  <p class="thesis" id="resultthesis"></p>
-  <p class="thesis" style="border-color:var(--infra)">One more thing the map showed you: <em>Exclusion sits on its own axis.</em> A classroom can be low-challenge and still lock learners out &mdash; banning a dictation tool adds no cognitive work, it only adds a wall. Removing exclusionary friction and calibrating productive friction are two different design acts, and conflating them is how schools end up smoothing away the struggle that learning requires while leaving the barriers standing.</p>
-  <div class="navrow">
-    <button class="btn" onclick="go('deep')">Academic deep dive &rarr;</button>
-    <button class="btn ghost" onclick="location.href='https://minerclass.github.io/nlu_ai-ed-conference-pres26/#9'">Return to presentation</button>
-    <button class="btn ghost" onclick="location.reload()">Re-calibrate the environment</button>
-  </div>
-  <p class="credit">Framework: Miner, <em>Pedagogical Friction</em>. micahminer.com</p>
 </section>
 
 <!-- ============ DEEP DIVE ============ -->
@@ -273,15 +358,57 @@
     </tbody>
   </table>
   </div>
-  <p class="sub" style="margin-top:22px">Final challenge: classify the design move. The traps are the moves that <em>feel</em> rigorous but sit on the wrong axis.</p>
+  <p class="sub" style="margin-top:22px">Final challenge: classify the design move. Drag the card below to its correct place on the map or Infrastructure rail.</p>
+  
   <div class="sortcard">
     <div class="counter" id="sortcounter"></div>
-    <div class="scenario" id="scenariotext"></div>
-    <div class="quizbtns" id="quizbtns"></div>
-    <div class="sortfeedback" id="sortfeedback"></div>
-    <div class="scorebar" id="scorebar"></div>
+    <div class="quiz-grid">
+      <!-- Left Column: The Interactive Quiz Map and Infrastructure Rail -->
+      <div class="quiz-map-container" style="position: relative; width: 100%;">
+        <div class="map" id="quiz-map" style="width: 100%; aspect-ratio: 1; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; position: relative;">
+          <span class="region r-excl" style="position: absolute; left:0; top:0; font-family: ui-monospace, monospace; font-size: 9px; padding: 7px; color: var(--bad); pointer-events: none;">Exclusion<br><span style="opacity:.6">high barrier</span></span>
+          <span class="region r-grind" style="position: absolute; right:0; top:0; font-family: ui-monospace, monospace; font-size: 9px; padding: 7px; color: var(--warn); text-align: right; pointer-events: none;">Grind<br><span style="opacity:.6">overload</span></span>
+          <span class="region r-bypass" style="position: absolute; left:0; bottom:0; font-family: ui-monospace, monospace; font-size: 9px; padding: 7px; color: #7dd3fc; pointer-events: none;">Bypass<br><span style="opacity:.6">frictionless</span></span>
+          <span class="region r-cal" style="position: absolute; right:0; bottom:0; font-family: ui-monospace, monospace; font-size: 9px; padding: 7px; color: var(--good); text-align: right; pointer-events: none;">Calibrated<br><span style="opacity:.6">productive</span></span>
+          <div class="zone-cal" style="position: absolute; left: 50%; right: 6%; bottom: 4%; height: 18%; border: 1px dashed #34d39966; border-radius: 8px; background: rgba(52,211,153,.06); pointer-events: none;"></div>
+          
+          <!-- Drop zones as transparent absolute overlays -->
+          <div class="drop-zone" data-zone="excl" style="position: absolute; left: 0; top: 0; width: 50%; height: 50%; z-index: 10; cursor: pointer;"></div>
+          <div class="drop-zone" data-zone="grind" style="position: absolute; right: 0; top: 0; width: 50%; height: 50%; z-index: 10; cursor: not-allowed;"></div>
+          <div class="drop-zone" data-zone="bypass" style="position: absolute; left: 0; bottom: 0; width: 50%; height: 50%; z-index: 10; cursor: pointer;"></div>
+          <div class="drop-zone" data-zone="cal" style="position: absolute; right: 0; bottom: 0; width: 50%; height: 50%; z-index: 10; cursor: pointer;"></div>
+        </div>
+        
+        <!-- Infrastructure Rail below the map -->
+        <div class="infra-rail-container" style="margin-top: 12px; width: 100%;">
+          <div class="ylabel" style="font-family: ui-monospace, monospace; font-size: 9px; text-transform: uppercase; color: var(--dim); margin-bottom: 4px;">Infrastructural Condition</div>
+          <div class="drop-zone" id="quiz-infra-rail" data-zone="infra" style="width: 100%; height: 42px; border: 1px dashed var(--infra); border-radius: 8px; background: rgba(245,158,11,.05); display: flex; align-items: center; justify-content: center; font-family: ui-monospace, monospace; font-size: 10px; color: var(--infra); text-transform: uppercase; letter-spacing: 0.1em; transition: background 0.2s, border-color 0.2s, outline 0.2s; cursor: pointer; z-index: 10; user-select: none;">
+            Infrastructure Rail (Drop Here)
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Column: The Scenario Card to Drag & Feedback -->
+      <div class="quiz-card-column" style="display: flex; flex-direction: column; gap: 16px; width: 100%;">
+        <div class="draggable-card" id="draggable-scenario" draggable="true">
+          <span id="scenariotext"></span>
+        </div>
+        
+        <!-- Keyboard / Mobile Fallback Buttons -->
+        <div>
+          <div style="font-family: ui-monospace, monospace; font-size: 9px; color: var(--dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em;">Or select zone:</div>
+          <div class="quizbtns" id="quizbtns">
+            <!-- Buttons dynamically generated -->
+          </div>
+        </div>
+
+        <div class="sortfeedback" id="sortfeedback"></div>
+        <div class="scorebar" id="scorebar"></div>
+      </div>
+    </div>
   </div>
-  <div class="navrow">
+  
+  <div class="navrow" style="margin-top: 22px;">
     <button class="btn" id="sortnext" onclick="nextScenario()" style="display:none">Next scenario &rarr;</button>
     <button class="btn ghost" onclick="location.reload()">Back to title screen</button>
   </div>

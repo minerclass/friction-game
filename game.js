@@ -197,7 +197,7 @@ function showResults(){
     label='DESIGN ASSESSMENT · EXCLUSIONARY'; head='Walls Where the Workout Should Be';
     schema='Gated';
     desc='Your environment drifted up the vertical axis. The moves that felt most rigorous — bans, no-support defenses, on-the-spot pressure — raised barriers faster than they raised challenge. Multilingual learners and students with disabilities are now locked out of struggle they were never given access to.';
-    thesis='The map\u2019s vertical axis is the framework\u2019s sharpest claim: exclusionary friction is a different kind of obstacle, not a higher dose of the productive kind. Rigor that gates participation produces neither equity nor learning.';
+    thesis='The map’s vertical axis is the framework’s sharpest claim: exclusionary friction is a different kind of obstacle, not a higher dose of the productive kind. Rigor that gates participation produces neither equity nor learning.';
   } else if(ba>=20){
     title='Drifting Toward Exclusion';
     label='DESIGN ASSESSMENT · BORDERLINE'; head='Strong Challenge, Rising Walls';
@@ -215,7 +215,7 @@ function showResults(){
     label='DESIGN ASSESSMENT · OVERLOADED'; head='Past the Desirable Zone';
     schema='Forming';
     desc='Barriers stayed low — good — but mean challenge pushed past the desirable-difficulty band. Struggle beyond what working memory can integrate stops producing schema and starts producing abandonment. Desirable difficulties have a ceiling as well as a floor.';
-    thesis='Productive friction is a band, not a maximum. Calibration means holding challenge inside the zone where struggle still converts to schema — Sweller\u2019s load limits apply to friction architects too.';
+    thesis='Productive friction is a band, not a maximum. Calibration means holding challenge inside the zone where struggle still converts to schema — Sweller’s load limits apply to friction architects too.';
   }
   $('resulttitle').textContent=title;
   $('certlabel').textContent=label;
@@ -224,63 +224,301 @@ function showResults(){
   $('certdesc').textContent=desc;
   $('statsc').textContent=schema;
   $('resultthesis').textContent=thesis;
+
+  animateTrajectory();
+}
+
+function animateTrajectory() {
+  const svg = $('trajectory-svg');
+  if (!svg) return;
+  svg.innerHTML = '';
+
+  const rDot = $('results-dot');
+  rDot.style.left = '6%';
+  rDot.style.bottom = '6%';
+
+  const pt0 = { x: 6, y: 6 };
+  const pt1 = { x: L.ch[0] || 0, y: L.ba[0] || 0 };
+  const pt2 = {
+    x: Math.round(((L.ch[0] || 0) + (L.ch[1] || 0)) / 2),
+    y: Math.round(((L.ba[0] || 0) + (L.ba[1] || 0)) / 2)
+  };
+  const pt3 = {
+    x: Math.round(((L.ch[0] || 0) + (L.ch[1] || 0) + (L.ch[2] || 0)) / 3),
+    y: Math.round(((L.ba[0] || 0) + (L.ba[1] || 0) + (L.ba[2] || 0)) / 3)
+  };
+
+  const pathD = `M ${pt0.x} ${100 - pt0.y} L ${pt1.x} ${100 - pt1.y} L ${pt2.x} ${100 - pt2.y} L ${pt3.x} ${100 - pt3.y}`;
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", pathD);
+  path.setAttribute("fill", "none");
+  path.setAttribute("stroke", "var(--accent)");
+  path.setAttribute("stroke-width", "2");
+  path.setAttribute("stroke-linecap", "round");
+  path.setAttribute("stroke-linejoin", "round");
+
+  const length = 300;
+  path.setAttribute("stroke-dasharray", length);
+  path.setAttribute("stroke-dashoffset", length);
+  svg.appendChild(path);
+
+  const regions = document.querySelectorAll('#results-map .region');
+  regions.forEach(r => {
+    r.style.opacity = '0';
+    r.style.transition = 'opacity 0.6s ease-in-out';
+  });
+
+  setTimeout(() => {
+    path.style.transition = "stroke-dashoffset 2.1s linear";
+    path.style.strokeDashoffset = "0";
+  }, 100);
+
+  const times = [0, 700, 1400, 2100];
+  
+  setResultsReadouts(pt0.x, pt0.y);
+
+  setTimeout(() => {
+    rDot.style.left = pt1.x + '%';
+    rDot.style.bottom = pt1.y + '%';
+    setResultsReadouts(pt1.x, pt1.y);
+    createMarker(svg, pt1.x, pt1.y, '1');
+  }, times[1]);
+
+  setTimeout(() => {
+    rDot.style.left = pt2.x + '%';
+    rDot.style.bottom = pt2.y + '%';
+    setResultsReadouts(pt2.x, pt2.y);
+    createMarker(svg, pt2.x, pt2.y, '2');
+  }, times[2]);
+
+  setTimeout(() => {
+    rDot.style.left = pt3.x + '%';
+    rDot.style.bottom = pt3.y + '%';
+    setResultsReadouts(pt3.x, pt3.y);
+    createMarker(svg, pt3.x, pt3.y, '3');
+  }, times[3]);
+
+  setTimeout(() => {
+    regions.forEach(r => {
+      r.style.opacity = r.classList.contains('r-cal') ? '0.8' : '0.65';
+    });
+  }, 2200);
+}
+
+function setResultsReadouts(ch, ba) {
+  $('results-chnum').textContent = ch + '%';
+  $('results-banum').textContent = ba + '%';
+  document.querySelector('#results-chbar i').style.width = ch + '%';
+  document.querySelector('#results-babar i').style.width = ba + '%';
+}
+
+function createMarker(svg, x, y, label) {
+  const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  g.style.opacity = "0";
+  g.style.transition = "opacity 0.4s ease-out";
+
+  const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  c.setAttribute("cx", x);
+  c.setAttribute("cy", 100 - y);
+  c.setAttribute("r", "5");
+  c.setAttribute("fill", "var(--bg)");
+  c.setAttribute("stroke", "var(--accent)");
+  c.setAttribute("stroke-width", "1.5");
+
+  const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  t.setAttribute("x", x);
+  t.setAttribute("y", 100 - y + 1.8);
+  t.setAttribute("text-anchor", "middle");
+  t.setAttribute("fill", "var(--text)");
+  t.setAttribute("font-size", "5px");
+  t.setAttribute("font-family", "ui-monospace, monospace");
+  t.setAttribute("font-weight", "bold");
+  t.textContent = label;
+
+  g.appendChild(c);
+  g.appendChild(t);
+  svg.appendChild(g);
+
+  setTimeout(() => { g.style.opacity = "1"; }, 50);
 }
 
 /* ---------- classification quiz ---------- */
-const CATS=['Noetic Friction','Rhetorical Friction','Existential Friction','Infrastructural (Condition)','Exclusionary Barrier'];
-const QUIZ=[
-  {t:'Students keep a handwritten thinking journal of first-draft ideas before opening any AI tool.',a:0,
+const CATS = ['cal', 'infra', 'excl', 'bypass'];
+const ZONE_NAMES = {
+  cal: 'Calibrated Zone (desirable difficulty)',
+  bypass: 'Bypass Zone (frictionless shortcut)',
+  excl: 'Exclusion Zone (barrier without learning)',
+  infra: 'Infrastructural Condition'
+};
+
+const QUIZ = [
+  {t:'Students keep a handwritten thinking journal of first-draft ideas before opening any AI tool.', a:0,
    why:'The struggle preserved is internal cognitive labor in the Head — schema work done before externalization. Classic noetic friction.'},
-  {t:'A Socratic seminar where every claim must survive two live peer objections before it can stand.',a:1,
+  {t:'A Socratic seminar where every claim must survive two live peer objections before it can stand.', a:1,
    why:'The resistance comes from other minds in the Room — unpredictable human dialogue that agreeable AI partners cannot replicate.'},
-  {t:'Students sign their thesis and orally defend three of their own choices to a community panel.',a:2,
+  {t:'Students sign their thesis and orally defend three of their own choices to a community panel.', a:2,
    why:'A named, embodied author answerable for their claims in the World — existential friction against abstraction.'},
-  {t:'The district rewrites grading policy so documented thinking process counts alongside the final product.',a:3,
+  {t:'The district rewrites grading policy so documented thinking process counts alongside the final product.', a:3,
    why:'A system-level structure that creates the conditions for the other three frictions to survive. Not a fourth peer — the foundation.'},
-  {t:'A student with dysgraphia is forbidden from using speech-to-text on the final essay.',a:4,
+  {t:'A student with dysgraphia is forbidden from using speech-to-text on the final essay.', a:4,
    why:'Transcription mechanics add no conceptual challenge here; they only gate access. A barrier on the wrong axis — exclusionary, not productive.'},
-  {t:'A multilingual learner must complete the conceptual synthesis without any dictionary or translation support.',a:4,
+  {t:'A multilingual learner must complete the conceptual synthesis without any dictionary or translation support.', a:4,
    why:'The language wall blocks demonstration of thinking without deepening it — the English Learner Paradox in one move. Remove the barrier, keep the conceptual friction.'},
-  {t:'AI is allowed only as a critic: students must write a rebuttal of the model\u2019s outline in their own words.',a:0,
-   why:'The model becomes something to push against, but the preserved labor — analyzing, rebutting, reformulating — happens inside the student\u2019s own head. Noetic.'},
-  {t:'The school redesigns its schedule into long blocks so that struggle has time to unfold before deadlines.',a:3,
-   why:'Time structure is infrastructure. No single classroom can grant what the system\u2019s calendar forbids.'},
-  {t:'Students publish their local-history findings, under their own names, to a real community audience.',a:2,
+  {t:'AI is allowed only as a critic: students must write a rebuttal of the model’s outline in their own words.', a:0,
+   why:'The model becomes something to push against, but the preserved labor — analyzing, rebutting, reformulating — happens inside the student’s own head. Noetic.'},
+  {t:'The school redesigns its schedule into long blocks so that struggle has time to unfold before deadlines.', a:3,
+   why:'Time structure is infrastructure. No single classroom can grant what the system’s calendar forbids.'},
+  {t:'Students publish their local-history findings, under their own names, to a real community audience.', a:2,
    why:'Authorship with stakes in the World: the claim travels with an accountable claimant attached.'},
-  {t:'Peer-review rounds where each author must respond in writing to two objections before revising.',a:1,
-   why:'Dialogic resistance from real peers — the claim must survive objection and reformulation. Rhetorical friction, in slow motion.'}
+  {t:'Peer-review rounds where each author must respond in writing to two objections before revising.', a:1,
+   why:'Dialogic resistance from real peers — the claim must survive objection and reformulation. Rhetorical friction, in slow motion.'},
+  {t:'Students use a chatbot to draft the entire essay, then copy-paste it into the submission template.', a:5,
+   why:'A frictionless shortcut that yields a polished final writing product but bypasses all active retrieval and schema consolidation.'},
+  {t:'The teacher grades only the final polished grammar and layout of the essay, ignoring the research process.', a:5,
+   why:'By rewarding only the surface artifact rather than the learning journey, the system incentivizes bypass.'}
 ];
-let quizStarted=false, qi=0, qscore=0;
+
+let quizStarted=false, qi=0, qscore=0, quizAnswered=false;
+
 function startQuiz(){
   quizStarted=true; qi=0; qscore=0;
   QUIZ.sort(()=>Math.random()-.5);
+  initQuizListeners();
   showQ();
 }
+
+function initQuizListeners() {
+  const card = $('draggable-scenario');
+  if (!card) return;
+  
+  card.addEventListener('dragstart', (e) => {
+    if (quizAnswered) {
+      e.preventDefault();
+      return;
+    }
+    e.dataTransfer.setData('text/plain', 'scenario');
+    card.style.opacity = '0.5';
+  });
+
+  card.addEventListener('dragend', () => {
+    card.style.opacity = '1';
+  });
+
+  const zones = document.querySelectorAll('.drop-zone');
+  zones.forEach(z => {
+    z.addEventListener('dragover', (e) => {
+      if (quizAnswered) return;
+      if (z.getAttribute('data-zone') === 'grind') return;
+      e.preventDefault();
+      z.classList.add('dragover');
+    });
+
+    z.addEventListener('dragleave', () => {
+      z.classList.remove('dragover');
+    });
+
+    z.addEventListener('drop', (e) => {
+      if (quizAnswered) return;
+      e.preventDefault();
+      z.classList.remove('dragover');
+      const zone = z.getAttribute('data-zone');
+      if (zone && zone !== 'grind') {
+        answerQ(zone);
+      }
+    });
+
+    z.addEventListener('click', () => {
+      if (quizAnswered) return;
+      const zone = z.getAttribute('data-zone');
+      if (zone && zone !== 'grind') {
+        answerQ(zone);
+      }
+    });
+  });
+}
+
+function getCorrectZone(s) {
+  if (s.a === 0 || s.a === 1 || s.a === 2) return 'cal';
+  if (s.a === 3) return 'infra';
+  if (s.a === 4) return 'excl';
+  if (s.a === 5) return 'bypass';
+  return '';
+}
+
 function showQ(){
+  quizAnswered = false;
   const s=QUIZ[qi];
   $('sortcounter').textContent=`SCENARIO ${qi+1} OF ${QUIZ.length}`;
   $('scenariotext').textContent=s.t;
   $('sortfeedback').textContent='';
   $('sortnext').style.display='none';
+  
+  const card = $('draggable-scenario');
+  card.setAttribute('draggable', 'true');
+  card.style.cursor = 'grab';
+
+  document.querySelectorAll('.drop-zone').forEach(z => {
+    z.className = 'drop-zone';
+    if (z.getAttribute('data-zone') === 'grind') z.className += ' grind';
+  });
+
   const wrap=$('quizbtns');
   wrap.innerHTML='';
-  CATS.forEach((c,idx)=>{
+  CATS.forEach(c => {
     const b=document.createElement('button');
-    b.textContent=c;
-    b.onclick=()=>answerQ(idx,b);
+    b.textContent = ZONE_NAMES[c];
+    b.className = 'quiz-btn';
+    b.setAttribute('data-zone', c);
+    b.onclick=()=>answerQ(c);
     wrap.appendChild(b);
   });
+
   $('scorebar').textContent=`SCORE ${qscore} / ${qi}`;
 }
-function answerQ(idx,btn){
+
+function answerQ(selectedZone){
+  if (quizAnswered) return;
+  quizAnswered = true;
+
   const s=QUIZ[qi];
-  [...$('quizbtns').children].forEach(c=>c.disabled=true);
-  const right=idx===s.a;
-  if(right){qscore++;btn.classList.add('right');}
-  else{btn.classList.add('wrong');$('quizbtns').children[s.a].classList.add('right');}
-  $('sortfeedback').innerHTML=`<b>${right?'Correct':'Not quite'} — ${CATS[s.a]}.</b> ${s.why}`;
+  const correctZone = getCorrectZone(s);
+  const right = selectedZone === correctZone;
+
+  if (right) {
+    qscore++;
+  }
+
+  const card = $('draggable-scenario');
+  card.setAttribute('draggable', 'false');
+  card.style.cursor = 'default';
+  document.querySelectorAll('.quiz-btn').forEach(b => b.disabled = true);
+
+  const selectedZoneEl = document.querySelector(`.drop-zone[data-zone="${selectedZone}"]`);
+  const correctZoneEl = document.querySelector(`.drop-zone[data-zone="${correctZone}"]`);
+
+  if (right) {
+    if (selectedZoneEl) selectedZoneEl.classList.add('right');
+    const btn = document.querySelector(`.quiz-btn[data-zone="${selectedZone}"]`);
+    if (btn) btn.classList.add('right');
+  } else {
+    if (selectedZoneEl) selectedZoneEl.classList.add('wrong');
+    if (correctZoneEl) correctZoneEl.classList.add('right');
+
+    const selBtn = document.querySelector(`.quiz-btn[data-zone="${selectedZone}"]`);
+    if (selBtn) selBtn.classList.add('wrong');
+    const corBtn = document.querySelector(`.quiz-btn[data-zone="${correctZone}"]`);
+    if (corBtn) corBtn.classList.add('right');
+  }
+
+  $('sortfeedback').innerHTML=`<b>${right?'Correct':'Not quite'} &mdash; ${ZONE_NAMES[correctZone]}.</b> ${s.why}`;
   $('scorebar').textContent=`SCORE ${qscore} / ${qi+1}`;
-  if(qi<QUIZ.length-1)$('sortnext').style.display='inline-block';
-  else $('sortfeedback').innerHTML+=`<br><br><b>Final: ${qscore} of ${QUIZ.length}.</b> The traps were the moves that felt rigorous but sat on the exclusion axis — that distinction is the framework\u2019s sharpest edge.`;
+
+  if(qi<QUIZ.length-1) {
+    $('sortnext').style.display='inline-block';
+  } else {
+    $('sortfeedback').innerHTML+=`<br><br><b>Final Quiz Score: ${qscore} of ${QUIZ.length}.</b> The traps were the moves that felt rigorous but sat on the exclusion axis &mdash; that distinction is the framework's sharpest edge.`;
+  }
 }
+
 function nextScenario(){qi++;showQ();}
+
