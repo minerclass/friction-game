@@ -269,9 +269,9 @@
       <div class="axislabel"><span>Low challenge</span><span>Productive challenge &rarr;</span></div>
       <div class="readouts">
         <div class="ro"><label>Productive challenge <b id="chnum">0%</b></label>
-          <div class="robar" id="chbar"><div class="band" style="left:50%;width:30%"></div><i style="width:0%"></i></div></div>
+          <div class="robar" id="chbar" role="progressbar" aria-label="Productive Challenge" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Productive Challenge: 0 percent"><div class="band" style="left:50%;width:30%"></div><i style="width:0%"></i></div></div>
         <div class="ro"><label>Exclusionary barrier <b id="banum">0%</b></label>
-          <div class="robar" id="babar"><div class="band" style="left:0;width:20%"></div><i style="width:0%"></i></div></div>
+          <div class="robar" id="babar" role="progressbar" aria-label="Exclusionary Barrier" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Exclusionary Barrier: 0 percent"><div class="band" style="left:0;width:20%"></div><i style="width:0%"></i></div></div>
       </div>
       <div class="schemastate bypassed" id="schemastate">Schema assembly: bypassed</div>
     </div>
@@ -309,9 +309,9 @@
       <div class="axislabel"><span>Low challenge</span><span>Productive challenge &rarr;</span></div>
       <div class="readouts">
         <div class="ro"><label>Productive challenge <b id="results-chnum">0%</b></label>
-          <div class="robar" id="results-chbar"><div class="band" style="left:50%;width:30%"></div><i style="width:0%"></i></div></div>
+          <div class="robar" id="results-chbar" role="progressbar" aria-label="Final Productive Challenge" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Final Productive Challenge: 0 percent"><div class="band" style="left:50%;width:30%"></div><i style="width:0%"></i></div></div>
         <div class="ro"><label>Exclusionary barrier <b id="results-banum">0%</b></label>
-          <div class="robar" id="results-babar"><div class="band" style="left:0;width:20%"></div><i style="width:0%"></i></div></div>
+          <div class="robar" id="results-babar" role="progressbar" aria-label="Final Exclusionary Barrier" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Final Exclusionary Barrier: 0 percent"><div class="band" style="left:0;width:20%"></div><i style="width:0%"></i></div></div>
       </div>
     </div>
 
@@ -331,6 +331,13 @@
       <p style="font-size: 0.8rem; color: var(--dim); text-align: center; margin-top: 10px; font-style: italic; margin-bottom: 20px;">*Note: All scores, stats, and achievements are illustrative models of the pedagogical friction framework, not validated learning assessment instruments.</p>
       <p class="thesis" id="resultthesis"></p>
       <p class="thesis" style="border-color:var(--infra)">One more thing the map showed you: <em>Exclusion sits on its own axis.</em> A classroom can be low-challenge and still lock learners out &mdash; banning a dictation tool adds no cognitive work, it only adds a wall. Removing exclusionary friction and calibrating productive friction are two different design acts, and conflating them is how schools end up smoothing away the struggle that learning requires while leaving the barriers standing.</p>
+      <section aria-labelledby="policyTakeawayTitle" style="margin:20px 0;padding:18px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.025)">
+        <h3 id="policyTakeawayTitle" style="font-size:1rem;margin:0 0 8px">Local workshop reflection</h3>
+        <p style="font-size:.82rem;color:var(--dim);margin:0 0 10px">Edit this browser-local drafting prompt before copying. It is not research evidence, dissertation findings, or endorsed policy language. Nothing is stored or transmitted.</p>
+        <textarea id="policyTakeaway" rows="4" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font:inherit;resize:vertical"></textarea>
+        <div class="navrow" style="justify-content:flex-start;margin-top:10px"><button class="btn ghost" type="button" onclick="copyPolicyTakeaway()">Copy workshop reflection</button></div>
+        <p id="copyTakeawayStatus" aria-live="polite" style="min-height:1.4em;margin:8px 0 0;color:var(--dim);font-size:.8rem"></p>
+      </section>
       <div class="navrow">
         <button class="btn" onclick="go('deep')">Academic deep dive &rarr;</button>
         <button class="btn ghost" onclick="location.href='https://minerclass.github.io/nlu_ai-ed-conference-pres26/#9'">Return to presentation</button>

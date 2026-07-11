@@ -113,7 +113,11 @@ function updateMap(){
   $('chnum').textContent=ch+'%';
   $('banum').textContent=ba+'%';
   document.querySelector('#chbar i').style.width=ch+'%';
+  $('chbar').setAttribute('aria-valuenow', ch);
+  $('chbar').setAttribute('aria-valuetext', 'Productive Challenge: '+ch+' percent');
   document.querySelector('#babar i').style.width=ba+'%';
+  $('babar').setAttribute('aria-valuenow', ba);
+  $('babar').setAttribute('aria-valuetext', 'Exclusionary Barrier: '+ba+' percent');
   const dot=$('dot');
   dot.style.left=Math.max(4,Math.min(96,ch))+'%';
   dot.style.bottom=Math.max(4,Math.min(96,ba))+'%';
@@ -224,8 +228,23 @@ function showResults(){
   $('certdesc').textContent=desc;
   $('statsc').textContent=schema;
   $('resultthesis').textContent=thesis;
+  $('policyTakeaway').value='Workshop reflection — '+title+': Preserve visible process evidence and protected time for productive struggle, while requiring accommodation pathways that remove barriers unrelated to the learning goal. A policy should be tested against who still performs the thinking, who can access that work, and what system conditions keep the design sustainable.';
+  $('copyTakeawayStatus').textContent='';
 
   animateTrajectory();
+}
+
+async function copyPolicyTakeaway(){
+  const field=$('policyTakeaway');
+  const status=$('copyTakeawayStatus');
+  field.focus();
+  field.select();
+  try{
+    await navigator.clipboard.writeText(field.value);
+    status.textContent='Workshop reflection copied. Nothing was stored or transmitted.';
+  }catch(error){
+    status.textContent='Clipboard access is unavailable. The text is selected; press Ctrl+C or Command+C to copy it.';
+  }
 }
 
 function animateTrajectory() {
@@ -309,7 +328,11 @@ function setResultsReadouts(ch, ba) {
   $('results-chnum').textContent = ch + '%';
   $('results-banum').textContent = ba + '%';
   document.querySelector('#results-chbar i').style.width = ch + '%';
+  $('results-chbar').setAttribute('aria-valuenow', ch);
+  $('results-chbar').setAttribute('aria-valuetext', 'Final Productive Challenge: '+ch+' percent');
   document.querySelector('#results-babar i').style.width = ba + '%';
+  $('results-babar').setAttribute('aria-valuenow', ba);
+  $('results-babar').setAttribute('aria-valuetext', 'Final Exclusionary Barrier: '+ba+' percent');
 }
 
 function createMarker(svg, x, y, label) {
