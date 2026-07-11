@@ -422,7 +422,8 @@ function initQuizListeners() {
       e.preventDefault();
       z.classList.remove('dragover');
       const zone = z.getAttribute('data-zone');
-      if (zone && zone !== 'grind') {
+      if (zone === 'grind') { grindHint(); return; }
+      if (zone) {
         answerQ(zone);
       }
     });
@@ -430,11 +431,19 @@ function initQuizListeners() {
     z.addEventListener('click', () => {
       if (quizAnswered) return;
       const zone = z.getAttribute('data-zone');
-      if (zone && zone !== 'grind') {
+      if (zone === 'grind') { grindHint(); return; }
+      if (zone) {
         answerQ(zone);
       }
     });
   });
+}
+
+// Dropping on the Grind corner previously did nothing at all — it read as a freeze.
+// It's a map quadrant, not an answer category, so say so and teach the distinction.
+function grindHint() {
+  const fb = $('sortfeedback');
+  fb.innerHTML = '<b>Grind isn’t a category here.</b> That corner is what happens when challenge AND barrier are both high — ask which axis dominates this scenario, then choose Calibrated, Bypass, Exclusion, or Infrastructural.';
 }
 
 function getCorrectZone(s) {
