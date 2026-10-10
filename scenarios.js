@@ -19,7 +19,7 @@ window.FL_SCENARIOS = [
   { id:'cite', dim:'noetic', a:'byp', x:10, y:8,
     t:'Allow full AI generation, with citation',
     d:'Students disclose AI use and cite it properly.',
-    why:'Disclosure is honesty, not friction. The schema is never assembled; the output is polished and the retrieval never happened.',
+    why:'Disclosure is honesty, not friction. In this scenario no step asks the student to build the schema first, so the output can be polished while the retrieval happens in the model.',
     fix:'Require a first claim in the student’s own words before the tool opens.',
     tag:'unproductive success' },
 
@@ -32,8 +32,8 @@ window.FL_SCENARIOS = [
 
   { id:'chatbot', dim:'rhetorical', a:'byp', x:18, y:6,
     t:'Students “discuss” their thesis with a chatbot partner',
-    d:'Each student refines their argument in private dialogue with an AI.',
-    why:'Synthetic interlocutors accommodate; peers object. The claim is polished but never tested against unpredictable resistance.',
+    d:'The chatbot supplies objections and a revised argument; students accept both without evaluating the reasoning or testing the claim with peers.',
+    why:'In this scenario the bypass is the missing evaluation: the student neither weighs the model’s objections nor tests the claim against people who can push back unpredictably. The dialogue happened; the learner’s judgment did not.',
     fix:'Add two live human objections the claim has to survive.',
     tag:'rhetorical saturation' },
 
@@ -51,9 +51,9 @@ window.FL_SCENARIOS = [
     trap:'cal', tag:'wrong axis' },
 
   { id:'autograder', dim:'existential', a:'byp', x:8, y:10,
-    t:'Anonymous submission to an auto-grader',
-    d:'Efficient, consistent, and nobody has to present anything.',
-    why:'No claimant, no stakes. The text detaches from any person who must stand behind it.',
+    t:'Generated text submitted without an ownership check',
+    d:'Students submit generated text; no explanation, revision record, or defense connects it to their thinking.',
+    why:'In this scenario nothing ties the text to a person who thought it through: no explanation, no revision trail, no defense. The bypass is the absence of accountable thinking, not the grading tool.',
     fix:'Attach a name and one decision the author has to explain.',
     tag:'existential abstraction' },
 
@@ -96,22 +96,22 @@ window.FL_SCENARIOS = [
     trap:'cal', tag:'time as a wall' },
 
   { id:'flaw', dim:'noetic', a:'cal', x:70, y:18,
-    t:'AI writes a counterargument; students must find its flaw with evidence before drafting',
-    d:'The model supplies resistance, the student supplies judgment.',
-    why:'The friction stays in the student. Locating the flaw requires the retrieval and schema work the model cannot do on the learner’s behalf.',
+    t:'Evaluate an AI counterargument with evidence before drafting',
+    d:'Students revise, rebut, or accept the counterargument with reasons; the model supplies an argument, and the student supplies judgment.',
+    why:'The friction stays in the student. Deciding what the counterargument gets right or wrong requires the retrieval and schema work the model cannot do on the learner’s behalf.',
     tag:'noetic friction preserved' },
 
   { id:'polish', dim:'noetic', a:'byp', x:15, y:10,
     t:'Teacher generates a model essay; students “improve” it by changing word choice',
     d:'Everyone works from the same strong draft.',
-    why:'Editing the surface of a finished schema is not building one. The retrieval and organization happened in the model.',
+    why:'Editing the surface of a finished schema is not building one. In this scenario the retrieval and organization happened in the model before the student arrived.',
     fix:'Give the students the prompt, not the essay. Compare to the model only afterward.',
     tag:'unproductive success' },
 
   { id:'record', dim:'existential', a:'cal', x:66, y:20,
     t:'AI allowed only after a recorded 90-second explanation of the plan',
-    d:'Students commit to a claim in their own voice before the tool enters the task.',
-    why:'Accountability precedes assistance. The learner owns a position the model can then be measured against.',
+    d:'Students commit to a claim in their own voice before the tool enters the task. Notes, rehearsal, and an equivalent typed or assistive response are available.',
+    why:'Accountability precedes assistance, and the supports keep the barrier low. The learner owns a position the model can then be measured against.',
     tag:'existential friction preserved' },
 
   { id:'finalonly', dim:'infra', a:'inf', x:0, y:0, infra:'erodes',

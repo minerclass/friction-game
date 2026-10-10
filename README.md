@@ -4,13 +4,15 @@ Two playable versions of the calibration map from the Pedagogical Friction Frame
 
 **Live:** https://minerclass.github.io/friction-game/
 
-## sixty seconds (`index.html`)
+## sort the map (`index.html`)
 
-Sort ten classroom design moves, drawn from a bank of eighteen, into four answers: calibrated, bypass, exclusion, or infrastructure. Every answer gets a two-sentence explanation naming the friction dimension at stake and, where it applies, what would calibrate the move. The round ends with a pattern readout that names your recurring confusion (walls read as workouts, polished output credited as learning, and so on) rather than a bare score.
+Sort ten classroom design moves, drawn from a bank of eighteen, into four answers: calibrated, bypass, exclusion / grind, or infrastructure. Every answer gets a two-sentence explanation naming the friction dimension at stake and, where it applies, what would calibrate the move. The round ends with a pattern readout that names any repeated confusion (walls read as workouts, shortcuts read as walls, system conditions placed on the learner map) and reports unsorted cards separately. An optional, browser-local reflection prompt follows: nothing typed there is scored, stored, or sent.
 
-- `?present=1` enlarges type for a projected room; `?timer=0` removes the clock for classroom use.
-- Keys 1–4 answer; Enter advances.
-- Reading time is not charged to the clock. The clock keeps sorting honest; it is not the point.
+- **Play untimed first.** The primary button starts an untimed round. The sixty-second round is a replay option; its clock counts accumulated sorting time only, never onboarding or reading the feedback.
+- `?timer=1` makes the clock the default; `?timer=0` forces it off. `?present=1` enlarges type for a projected room.
+- Keys 1–4 answer; Enter continues. The tutorial is a modal dialog: Tab stays inside it, Escape skips it.
+- Verdicts, card changes, and results are announced through a polite live region. Screen-reader output has not been tested with a real screen reader; treat that as unverified.
+- Grind is a map region, not an answer. When both axes are high, sort the move as exclusion and preserve the worthwhile challenge in your redesign.
 - Scenarios live in `scenarios.js`. Add a card by appending an object; the dealer guarantees at least two of each answer type per round.
 
 ## the 5-minute design version (`classic/`)

@@ -16,7 +16,8 @@ Four corners. One of them teaches.
 
 5
 00:00:19,500 --> 00:00:24,500
-AI doesn't remove friction. It moves it.
+When AI replaces the learner's work,
+the thinking moves elsewhere.
 
 6
 00:00:24,500 --> 00:00:27,000
@@ -24,4 +25,4 @@ Underneath it all: infrastructure.
 
 7
 00:00:27,000 --> 00:00:30,000
-Sort ten moves in sixty seconds. Friction Lab.
+Sort ten moves yourself. Friction Lab.
