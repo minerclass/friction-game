@@ -1,0 +1,27 @@
+1
+00:00:00,000 --> 00:00:04,000
+Every assignment lives somewhere on this map.
+
+2
+00:00:04,000 --> 00:00:09,000
+Across: how much the student has to think, argue, and stand behind.
+
+3
+00:00:09,000 --> 00:00:14,000
+Up: how much gets in the way of showing it.
+
+4
+00:00:14,000 --> 00:00:19,500
+Four corners. One of them teaches.
+
+5
+00:00:19,500 --> 00:00:24,500
+AI doesn't remove friction. It moves it.
+
+6
+00:00:24,500 --> 00:00:27,000
+Underneath it all: infrastructure.
+
+7
+00:00:27,000 --> 00:00:30,000
+Sort ten moves in sixty seconds. Friction Lab.

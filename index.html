@@ -3,434 +3,387 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Friction Lab: The Calibration Challenge</title>
+<title>Friction Lab · sixty seconds.</title>
+<meta name="description" content="Sort ten classroom design moves onto the calibration map in sixty seconds. Productive challenge and exclusionary barriers are different axes, not one dial.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
 <link rel="stylesheet" href="https://minerclass.github.io/tokens.css">
 <style>
   :root{
-    /* Ground and the four dimension colours stay local: they are this
-       simulation's signal, not decoration. Text joins the shared ink. */
-    --bg:#0b1016; --panel:rgba(17,24,33,.85); --line:#27313d;
+    --bg:#0b1016; --panel:#111821; --panel2:#17202b; --line:#27313d;
     --text:var(--mjm-ink,#e6edf3); --dim:var(--mjm-muted,#8b98a5);
-    --mjm-accent:var(--mjm-blue,#38bdf8);
-    --accent:#38bdf8;
+    --gold:var(--mjm-gold,#f0c040);
     --good:#34d399; --bad:#f87171; --warn:#fbbf24;
     --noetic:#38bdf8; --rhet:#a78bfa; --exis:#34d399; --infra:#f59e0b;
+    --cal:#34d399; --byp:#60a5fa; --exc:#f87171; --inf:#f59e0b;
+    --sans:'Space Grotesk',-apple-system,'Segoe UI',Roboto,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+    --r:14px;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
   body{
-    background:var(--bg);
-    background-image:
-      linear-gradient(rgba(56,189,248,.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(56,189,248,.04) 1px, transparent 1px);
-    background-size:42px 42px;
-    color:var(--text);
-    font-family:-apple-system,'Segoe UI',Roboto,Helvetica,sans-serif;
-    overflow-x:hidden;
-    transition:--accent .8s;
+    background:var(--bg) linear-gradient(rgba(56,189,248,.035) 1px,transparent 1px) 0 0/42px 42px,
+               var(--bg) linear-gradient(90deg,rgba(56,189,248,.035) 1px,transparent 1px) 0 0/42px 42px;
+    background-color:var(--bg);
+    color:var(--text); font-family:var(--sans); -webkit-font-smoothing:antialiased;
+    overflow-x:hidden; min-height:100vh;
   }
-  body[data-level="0"]{--accent:var(--noetic)}
-  body[data-level="1"]{--accent:var(--rhet)}
-  body[data-level="2"]{--accent:var(--exis)}
-  body[data-level="3"]{--accent:var(--infra)}
-
-  .screen{display:none;max-width:880px;margin:0 auto;padding:28px 20px 80px;min-height:100vh;position:relative;z-index:2}
-  .screen.active{display:block;animation:fadeUp .55s ease}
-  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+  a{color:var(--gold)}
+  .mono{font-family:var(--mono)}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:lowercase;color:var(--dim)}
+  h1,h2,h3{font-weight:700;letter-spacing:-.02em;line-height:1.05}
+  h1{font-size:clamp(34px,7vw,64px)} h2{font-size:clamp(24px,4.5vw,36px)} h3{font-size:18px}
+  .wrap{max-width:960px;margin:0 auto;padding:20px 16px 72px}
+  .screen{display:none} .screen.active{display:block;animation:up .4s ease}
+  @keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
   @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 
-  .eyebrow{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--dim)}
-  h1{font-size:clamp(34px,6.6vw,56px);font-weight:300;line-height:1.05;margin:14px 0;letter-spacing:-.01em}
-  h1 b{font-weight:700;color:var(--accent)}
-  h2{font-size:clamp(21px,3.8vw,30px);font-weight:600;margin:8px 0 4px}
-  .sub{color:var(--dim);font-size:16px;line-height:1.62;max-width:62ch}
-  button{font:inherit;cursor:pointer;border:none;border-radius:8px}
-  button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-  .btn{background:var(--accent);color:#06121c;padding:13px 26px;font-size:15px;font-weight:600;transition:transform .15s,filter .15s}
-  .btn:hover{transform:translateY(-1px);filter:brightness(1.1)}
-  .btn.ghost{background:transparent;color:var(--dim);border:1px solid var(--line);font-weight:400}
-  .btn.ghost:hover{color:var(--text);border-color:var(--dim)}
+  /* top bar */
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+  .brand{display:flex;align-items:baseline;gap:10px}
+  .brand b{font-size:15px} .brand span{color:var(--dim);font-size:12px}
+  .bar .tools{display:flex;gap:8px}
+  .chip{font-family:var(--mono);font-size:12px;padding:7px 11px;border:1px solid var(--line);border-radius:999px;color:var(--dim);background:var(--panel)}
+  .chip[aria-pressed="true"]{color:var(--gold);border-color:var(--gold)}
 
-  .quotebox{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;background:var(--panel);
-    padding:20px 22px;margin:26px 0;font-size:17px;line-height:1.6;font-style:italic;max-width:64ch;backdrop-filter:blur(6px)}
-  .quotebox .ql{font-style:normal;font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:10px}
-  /* Was a hardcoded #5d6975, measuring 3.40 against the ground. Uses the dim
-     token instead, which now resolves to the shared muted ink at 8.48. */
-  .credit{margin-top:30px;font-size:12.5px;color:var(--dim);line-height:1.65;max-width:70ch}
-  .navrow{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+  /* buttons */
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:999px;font-weight:700;font-size:16px;background:var(--gold);color:#201f24;transition:transform .12s,filter .12s}
+  .btn:hover{transform:translateY(-1px);filter:brightness(1.05)} .btn:active{transform:translateY(0)}
+  .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+  .btn.sm{padding:10px 16px;font-size:14px}
+  .row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
 
-  /* level progress */
-  .levelrail{display:flex;gap:7px;margin-bottom:22px;flex-wrap:wrap}
-  .levelrail .lv{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;
-    padding:6px 11px;border-radius:999px;border:1px solid var(--line);color:#5d6975;background:rgba(0,0,0,.25)}
-  .levelrail .lv.done{color:var(--dim);border-color:#3a4754}
-  .levelrail .lv.now{color:var(--accent);border-color:var(--accent)}
-  .levelrail .lv.infra{border-style:dashed}
+  /* landing */
+  .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:center}
+  @media (max-width:760px){.hero{grid-template-columns:1fr}}
+  .hero p.lead{font-size:18px;color:var(--dim);margin:14px 0 22px;max-width:46ch;line-height:1.5}
+  .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:26px}
+  .fact{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+  .fact b{display:block;font-family:var(--mono);font-size:20px;color:var(--gold)} .fact span{font-size:12px;color:var(--dim)}
 
-  /* layout: map + panel */
-  .labgrid{display:grid;grid-template-columns:minmax(260px,330px) 1fr;gap:24px;align-items:start}
-  @media(max-width:740px){.labgrid{grid-template-columns:1fr}}
+  /* map */
+  .map{position:relative;aspect-ratio:1/1;width:100%;max-width:520px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  .map svg{width:100%;height:100%;display:block}
+  .map .q{font-family:var(--mono);font-size:11px;letter-spacing:.08em;fill:var(--dim)}
+  .map .ax{font-family:var(--mono);font-size:10px;letter-spacing:.1em;fill:var(--dim)}
+  .map .dot{transition:cx .7s cubic-bezier(.2,.8,.2,1),cy .7s cubic-bezier(.2,.8,.2,1),fill .4s}
+  .map .trail{opacity:.35}
+  .map .zone{fill:transparent;transition:fill .3s}
+  .map .zone.lit-cal{fill:rgba(52,211,153,.16)} .map .zone.lit-byp{fill:rgba(96,165,250,.16)}
+  .map .zone.lit-exc{fill:rgba(248,113,113,.16)} .map .zone.lit-grind{fill:rgba(251,191,36,.14)}
+  .rail{margin:10px auto 0;max-width:520px;border:1px dashed var(--line);border-radius:10px;padding:8px 12px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--dim);display:flex;justify-content:space-between;transition:border-color .3s,color .3s}
+  .rail.lit{border-color:var(--inf);color:var(--inf)}
 
-  /* ===== THE CALIBRATION MAP ===== */
-  .mapcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;backdrop-filter:blur(6px);position:sticky;top:16px}
-  .mapcard .mt{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
-  .map{position:relative;width:100%;aspect-ratio:1;border:1px solid var(--line);border-radius:10px;overflow:hidden;
-    background:
-      linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
-    background-size:25% 25%;}
-  .map .region{position:absolute;font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;padding:7px 9px;line-height:1.5}
-  .map .r-bypass{left:0;bottom:0;color:#7dd3fc99}
-  .map .r-cal{right:0;bottom:0;color:#34d399cc;text-align:right}
-  .map .r-excl{left:0;top:0;color:#f87171cc}
-  .map .r-grind{right:0;top:0;color:#fbbf24aa;text-align:right}
-  .map .zone-cal{position:absolute;left:50%;right:6%;bottom:4%;height:18%;border:1px dashed #34d39966;border-radius:8px;background:rgba(52,211,153,.06)}
-  .map .axis-x{position:absolute;left:0;right:0;bottom:-1px;height:1px;background:var(--line)}
-  .map .dot{position:absolute;width:16px;height:16px;border-radius:50%;background:var(--accent);
-    box-shadow:0 0 18px var(--accent), 0 0 4px #fff inset;transform:translate(-50%,50%);
-    transition:left 1s cubic-bezier(.2,.8,.2,1), bottom 1s cubic-bezier(.2,.8,.2,1), background 1s;z-index:3}
-  .map .dot::after{content:"";position:absolute;inset:-7px;border-radius:50%;border:1px solid var(--accent);opacity:.5;animation:ping 2s infinite}
-  @keyframes ping{0%{transform:scale(.7);opacity:.6}100%{transform:scale(1.4);opacity:0}}
-  .axislabel{display:flex;justify-content:space-between;font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:.1em;color:var(--dim);text-transform:uppercase;margin-top:8px}
-  .ylabel{font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:.1em;color:var(--dim);text-transform:uppercase;margin-bottom:6px}
-  .readouts{display:flex;flex-direction:column;gap:10px;margin-top:16px}
-  .readouts .ro label{font-family:ui-monospace,Menlo,monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);display:flex;justify-content:space-between}
-  .readouts .ro label b{color:var(--text);font-weight:400}
-  .robar{height:6px;background:rgba(255,255,255,.06);border-radius:3px;margin-top:5px;overflow:hidden;position:relative}
-  .robar i{display:block;height:100%;border-radius:3px;transition:width .9s cubic-bezier(.2,.8,.2,1)}
-  #chbar i{background:linear-gradient(90deg,#0ea5e9,#34d399)}
-  #babar i{background:linear-gradient(90deg,#fbbf24,#f87171)}
-  .robar .band{position:absolute;top:-2px;bottom:-2px;border-left:1px dashed #34d39988;border-right:1px dashed #34d39988;background:rgba(52,211,153,.07)}
-  .schemastate{margin-top:14px;font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
-    padding:9px 12px;border-radius:8px;border:1px solid var(--line);text-align:center;color:var(--dim);transition:all .8s}
-  .schemastate.bypassed{color:#7dd3fc;border-color:#0ea5e966}
-  .schemastate.forming{color:var(--warn);border-color:#fbbf2466}
-  .schemastate.durable{color:var(--good);border-color:#34d39977;box-shadow:0 0 20px rgba(52,211,153,.15)}
-  .schemastate.excluded{color:var(--bad);border-color:#f8717177}
+  /* play */
+  .play{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+  @media (max-width:860px){.play{grid-template-columns:1fr}.play .mapcol{order:2}}
+  .hud{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-family:var(--mono);font-size:13px;color:var(--dim)}
+  .timer{position:relative;height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:16px}
+  .timer i{position:absolute;inset:0;transform-origin:left;background:var(--gold);transition:transform .25s linear}
+  .timer.low i{background:var(--bad)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px;min-height:150px;position:relative}
+  .card .kicker{margin-bottom:8px}
+  .card h3{font-size:clamp(18px,3vw,24px);line-height:1.2}
+  .card p{color:var(--dim);margin-top:8px;font-size:15px;line-height:1.45}
+  .answers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  .ans{text-align:left;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);transition:transform .1s,border-color .15s}
+  .ans:hover{transform:translateY(-1px)} .ans:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  .ans b{display:block;font-size:16px} .ans span{display:block;font-size:12px;color:var(--dim);margin-top:3px}
+  .ans[data-a="cal"]{border-left:4px solid var(--cal)} .ans[data-a="byp"]{border-left:4px solid var(--byp)}
+  .ans[data-a="exc"]{border-left:4px solid var(--exc)} .ans[data-a="inf"]{border-left:4px solid var(--inf)}
+  .ans[disabled]{opacity:.45;cursor:default}
+  .ans.right{border-color:var(--good);box-shadow:0 0 0 1px var(--good) inset} .ans.wrong{border-color:var(--bad)}
 
-  /* right panel: scenario + moves */
-  .scenariocard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px;backdrop-filter:blur(6px)}
-  .dimtag{display:inline-flex;align-items:center;gap:8px;font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;
-    color:var(--accent);border:1px solid var(--line);border-radius:999px;padding:6px 13px;margin-bottom:14px;background:rgba(0,0,0,.25)}
-  .dimtag.infra{border-style:dashed}
-  .dimtag .locus{color:var(--dim)}
-  .scenariocard h3{font-size:clamp(19px,3vw,25px);font-weight:600;margin-bottom:8px}
-  .scenariocard .construct{font-size:13px;color:var(--dim);font-style:italic;margin-bottom:14px}
-  .scenariocard .scen{font-size:15.5px;line-height:1.65;color:var(--text);margin-bottom:20px;max-width:62ch}
-  .moves{display:flex;flex-direction:column;gap:11px}
-  .moves button{
-    background:rgba(13,20,28,.8);border:1px solid var(--line);color:var(--text);text-align:left;
-    padding:15px 18px;border-radius:11px;font-size:14.5px;line-height:1.55;transition:border-color .2s,transform .2s;
-  }
-  .moves button:hover{border-color:var(--accent);transform:translateX(4px)}
-  .moves button small{display:block;color:var(--dim);font-size:12.5px;margin-top:5px}
-  .moves button:disabled{opacity:.42;cursor:default;transform:none}
-  .moves button.picked{border-color:var(--accent);background:rgba(56,189,248,.06)}
-  .verdict{margin-top:18px;font-size:14.5px;line-height:1.65;color:var(--dim);min-height:2.4em;max-width:62ch}
-  .verdict b{color:var(--text)}
-  .verdict .vtag{display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;
-    padding:3px 9px;border-radius:5px;margin-bottom:8px}
-  .vtag.cal{color:var(--good);border:1px solid #34d39966}
-  .vtag.byp{color:#7dd3fc;border:1px solid #0ea5e966}
-  .vtag.exc{color:var(--bad);border:1px solid #f8717166}
-  .vtag.grd{color:var(--warn);border:1px solid #fbbf2466}
-  .nextrow{margin-top:18px;display:none}
-  .nextrow.show{display:block;animation:fadeUp .4s}
+  .verdict{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;display:none}
+  .verdict.show{display:block;animation:up .3s ease}
+  .verdict .head{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-family:var(--mono);font-size:13px;letter-spacing:.06em}
+  .verdict .head .ok{color:var(--good)} .verdict .head .no{color:var(--bad)}
+  .vtag{padding:3px 8px;border-radius:999px;font-size:11px;border:1px solid currentColor}
+  .vtag.cal{color:var(--cal)} .vtag.byp{color:var(--byp)} .vtag.exc{color:var(--exc)} .vtag.inf{color:var(--inf)}
+  .verdict p{line-height:1.5;font-size:15px} .verdict p.fix{color:var(--dim);margin-top:8px;font-size:14px}
+  .verdict p.fix b{color:var(--text)}
+  .verdict .next{margin-top:14px}
 
-  /* foundation framing */
-  .foundnote{border:1px dashed #f59e0b66;border-radius:10px;padding:14px 16px;margin-bottom:18px;font-size:13.5px;line-height:1.6;color:var(--dim);background:rgba(245,158,11,.05)}
-  .foundnote b{color:var(--infra)}
+  /* results */
+  .score{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+  @media (max-width:560px){.score{grid-template-columns:1fr 1fr}}
+  .pattern{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;margin-top:14px}
+  .pattern h3{margin-bottom:6px} .pattern p{color:var(--dim);line-height:1.5;font-size:15px}
+  .pattern p b{color:var(--text)}
+  .pattern.hot{border-color:var(--gold)}
+  .list{margin-top:18px;display:grid;gap:8px}
+  .item{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:start;padding:10px 12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;font-size:14px}
+  .item .m{font-family:var(--mono)} .item .ok{color:var(--good)} .item .no{color:var(--bad)}
+  .item small{color:var(--dim);font-family:var(--mono);font-size:11px}
+  @media (max-width:560px){.item{grid-template-columns:22px 1fr}.item>small:last-child{grid-column:2}}
 
-  /* certificate */
-  .cert{border:1px solid var(--line);border-radius:16px;padding:30px;margin:24px 0;background:var(--panel);backdrop-filter:blur(8px);position:relative;overflow:hidden}
-  .cert::before{content:"";position:absolute;inset:0;border-radius:16px;padding:1px;
-    background:linear-gradient(135deg,transparent 30%, var(--accent), transparent 70%);
-    -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite:xor;mask-composite:exclude;opacity:.5;pointer-events:none}
-  .cert .cl{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.24em;text-transform:uppercase;margin-bottom:12px}
-  .cert h3{font-size:clamp(22px,4vw,32px);font-weight:300;margin-bottom:14px}
-  .cert p{font-size:15px;line-height:1.65;color:var(--dim);max-width:62ch}
-  .certstats{display:flex;gap:30px;flex-wrap:wrap;margin-top:20px}
-  .certstats div{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.12em;color:var(--dim)}
-  .certstats div b{display:block;font-size:26px;color:var(--text);font-weight:400;margin-top:5px}
-  .thesis{border-left:2px solid var(--accent);padding-left:15px;margin:24px 0;font-size:15px;line-height:1.7;color:var(--dim);max-width:64ch}
-  .thesis em{color:var(--text);font-style:normal;font-weight:600}
+  /* tutorial overlay */
+  .tut{position:fixed;inset:0;background:rgba(5,8,12,.82);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:18px;z-index:9}
+  .tut.show{display:flex}
+  .tut .box{max-width:560px;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px}
+  .tut .box h2{margin-bottom:8px} .tut .box p{color:var(--dim);line-height:1.5;font-size:16px;min-height:72px}
+  .tut .steps{display:flex;gap:6px;margin:14px 0}
+  .tut .steps i{flex:1;height:4px;border-radius:2px;background:var(--line)} .tut .steps i.on{background:var(--gold)}
 
-  /* deep dive table + quiz */
-  table.summary{width:100%;border-collapse:collapse;margin-top:20px;font-size:13px}
-  table.summary th,table.summary td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top;line-height:1.5}
-  table.summary th{font-family:ui-monospace,Menlo,monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);font-weight:400;background:rgba(0,0,0,.3)}
-  table.summary td:first-child{white-space:nowrap;font-weight:600}
-  tr.noeticrow td:first-child{color:var(--noetic)}
-  tr.rhetrow td:first-child{color:var(--rhet)}
-  tr.exisrow td:first-child{color:var(--exis)}
-  tr.infrarow td{background:rgba(245,158,11,.05)}
-  tr.infrarow td:first-child{color:var(--infra)}
-  .tablescroll{overflow-x:auto}
-  .sortcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;margin-top:22px;backdrop-filter:blur(6px)}
-  .sortcard .counter{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--dim);letter-spacing:.15em;margin-bottom:12px}
+  footer{margin-top:40px;color:var(--dim);font-size:12px;line-height:1.6;border-top:1px solid var(--line);padding-top:14px}
 
-  /* Quiz drag/drop map layout */
-  .quiz-grid {display:grid;grid-template-columns:300px 1fr;gap:24px;margin-top:16px;align-items:start}
-  @media(max-width:680px){.quiz-grid {grid-template-columns:1fr}}
-
-  .draggable-card {
-    background:rgba(255,255,255,.02);
-    border:2px dashed var(--accent);
-    border-radius:12px;
-    padding:22px;
-    font-size:15.5px;
-    line-height:1.6;
-    cursor:grab;
-    min-height:110px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    transition:transform .15s,box-shadow .15s,background-color .15s;
-    user-select:none;
-  }
-  .draggable-card:hover {
-    background:rgba(56,189,248,.03);
-    transform:scale(1.01);
-  }
-  .draggable-card:active {
-    cursor:grabbing;
-  }
-
-  .drop-zone {
-    z-index:5;
-    transition:background-color .2s,outline .2s;
-  }
-  .drop-zone.dragover[data-zone="cal"] { background:rgba(52,211,153,.15)!important }
-  .drop-zone.dragover[data-zone="excl"] { background:rgba(248,113,113,.15)!important }
-  .drop-zone.dragover[data-zone="bypass"] { background:rgba(14,165,233,.15)!important }
-  .drop-zone.dragover[data-zone="infra"] { background:rgba(245,158,11,.15)!important }
-
-  .drop-zone.right {
-    background:rgba(52,211,153,.15)!important;
-    outline:2px solid var(--good)!important;
-    outline-offset:-2px;
-  }
-  .drop-zone.wrong {
-    background:rgba(248,113,113,.15)!important;
-    outline:2px solid var(--bad)!important;
-    outline-offset:-2px;
-  }
-
-  .quizbtns {display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:12px}
-  .quizbtns button {
-    padding:12px 10px;
-    font-size:12.5px;
-    border-radius:8px;
-    border:1px solid var(--line);
-    background:rgba(13,20,28,.8);
-    color:var(--text);
-    text-align:center;
-    transition:border-color .15s,background-color .15s;
-  }
-  .quizbtns button:hover:not(:disabled) { border-color:var(--accent) }
-  .quizbtns button.right { border-color:var(--good)!important;background:rgba(52,211,153,.15)!important;color:#fff }
-  .quizbtns button.wrong { border-color:var(--bad)!important;background:rgba(248,113,113,.15)!important;color:#fff }
-
-  .sortfeedback{margin-top:14px;font-size:14px;line-height:1.6;color:var(--dim);min-height:3em}
-  .sortfeedback b{color:var(--text)}
-  .scorebar{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:var(--accent);letter-spacing:.08em;margin-top:8px;text-transform:uppercase}
+  /* presenter mode */
+  body.present{font-size:118%}
+  body.present .wrap{max-width:1200px}
+  body.present .card h3{font-size:30px} body.present .card p{font-size:18px}
+  body.present .ans b{font-size:20px} body.present .ans span{font-size:14px}
+  body.present .verdict p{font-size:19px} body.present footer{display:none}
+  .sr{position:absolute;left:-9999px}
 </style>
 </head>
-<body data-level="0">
-
-<!-- ============ TITLE ============ -->
-<section class="screen active" id="title">
-  <p class="eyebrow">A pedagogical friction simulation</p>
-  <h1>Friction <b>Lab</b></h1>
-  <p class="sub">In an age of generative AI, the path of least resistance leads to cognitive bypass. You are the <strong>Friction Architect</strong>. Design one assignment across the three dimensions of pedagogical friction &mdash; the Head, the Room, and the World &mdash; then secure the infrastructural conditions that make all three possible. Your instrument is the Calibration Map: productive challenge and exclusionary barrier are <em>different axes</em>, not two ends of one dial.</p>
-  <div class="quotebox">
-    <span class="ql">The Architect's Charge</span>
-    &ldquo;We must design learning environments where the output is the artifact of learning, not a proxy that displaces it. Calibrate for desirable difficulty &mdash; and never mistake a barrier for a challenge.&rdquo;
-  </div>
-  <div class="navrow">
-    <button class="btn" onclick="startLab()">Begin the 5-minute calibration challenge &rarr;</button>
-    <button class="btn ghost" onclick="location.href='https://minerclass.github.io/nlu_ai-ed-conference-pres26/#9'">Return to presentation</button>
-    <a class="btn ghost" href="https://minerclass.github.io/games-hub/" style="text-decoration: none; display: inline-flex; align-items: center;">&larr; Games Hub</a>
-  </div>
-  <p class="credit">Framework proposed by Micah J. Miner, <em>Pedagogical Friction</em>: three learner-facing dimensions (noetic, rhetorical, existential) with infrastructural friction as their condition of possibility. Synthesizing Walter J. Ong's media ecology with productive failure (Kapur), desirable difficulties (Bjork), and cognitive load theory (Sweller).</p>
-</section>
-
-<!-- ============ LAB ============ -->
-<section class="screen" id="lab">
-  <div class="levelrail" id="levelrail"></div>
-  <div class="labgrid">
-    <div class="mapcard">
-      <div class="mt">Calibration Map</div>
-      <div class="ylabel">&uarr; Exclusionary barrier</div>
-      <div class="map" id="map">
-        <span class="region r-excl">Exclusion<br><span style="opacity:.65">barrier without learning</span></span>
-        <span class="region r-grind">Grind<br><span style="opacity:.65">struggle + lockout</span></span>
-        <span class="region r-bypass">Bypass<br><span style="opacity:.65">no schema built</span></span>
-        <span class="region r-cal">Calibrated<br><span style="opacity:.65">desirable difficulty</span></span>
-        <div class="zone-cal"></div>
-        <div class="dot" id="dot" style="left:6%;bottom:6%"></div>
-      </div>
-      <div class="axislabel"><span>Low challenge</span><span>Productive challenge &rarr;</span></div>
-      <div class="readouts">
-        <div class="ro"><label>Productive challenge <b id="chnum">0%</b></label>
-          <div class="robar" id="chbar" role="progressbar" aria-label="Productive Challenge" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Productive Challenge: 0 percent"><div class="band" style="left:50%;width:30%"></div><i style="width:0%"></i></div></div>
-        <div class="ro"><label>Exclusionary barrier <b id="banum">0%</b></label>
-          <div class="robar" id="babar" role="progressbar" aria-label="Exclusionary Barrier" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Exclusionary Barrier: 0 percent"><div class="band" style="left:0;width:20%"></div><i style="width:0%"></i></div></div>
-      </div>
-      <div class="schemastate bypassed" id="schemastate">Schema assembly: bypassed</div>
-    </div>
-
-    <div class="scenariocard">
-      <div class="dimtag" id="dimtag"></div>
-      <h3 id="levtitle"></h3>
-      <div class="construct" id="levconstruct"></div>
-      <p class="scen" id="levscen"></p>
-      <div class="moves" id="moves"></div>
-      <div class="verdict" id="verdict"></div>
-      <div class="nextrow" id="nextrow"><button class="btn" id="nextbtn" onclick="nextLevel()">Continue &rarr;</button></div>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="brand"><b>friction lab.</b><span>sixty seconds on the calibration map</span></div>
+    <div class="tools">
+      <button class="chip" id="presentBtn" aria-pressed="false" title="Larger type for a projected room">present</button>
+      <button class="chip" id="timerBtn" aria-pressed="true" title="Turn the sixty-second clock on or off">timer</button>
     </div>
   </div>
-</section>
 
-<!-- ============ RESULTS ============ -->
-<section class="screen" id="results">
-  <p class="eyebrow">The lab assessment</p>
-  <h2 id="resulttitle" style="margin-bottom: 20px;"></h2>
-  <div class="labgrid">
-    <!-- Left Column: Calibration Map (with trajectory) -->
-    <div class="mapcard">
-      <div class="mt">Calibration Journey</div>
-      <div class="ylabel">&uarr; Exclusionary barrier</div>
-      <div class="map" id="results-map" style="position:relative; width:100%; aspect-ratio:1;">
-        <span class="region r-excl" style="position:absolute; left:0; top:0; font-family:ui-monospace,monospace; font-size:9px; padding:7px; color:var(--bad);">Exclusion<br><span style="opacity:.65">barrier without learning</span></span>
-        <span class="region r-grind" style="position:absolute; right:0; top:0; font-family:ui-monospace,monospace; font-size:9px; padding:7px; color:var(--warn); text-align:right;">Grind<br><span style="opacity:.65">struggle + lockout</span></span>
-        <span class="region r-bypass" style="position:absolute; left:0; bottom:0; font-family:ui-monospace,monospace; font-size:9px; padding:7px; color:#7dd3fc;">Bypass<br><span style="opacity:.65">no schema built</span></span>
-        <span class="region r-cal" style="position:absolute; right:0; bottom:0; font-family:ui-monospace,monospace; font-size:9px; padding:7px; color:var(--good); text-align:right;">Calibrated<br><span style="opacity:.65">desirable difficulty</span></span>
-        <div class="zone-cal" style="position:absolute; left:50%; right:6%; bottom:4%; height:18%; border:1px dashed #34d39966; border-radius:8px; background:rgba(52,211,153,.06);"></div>
-        <svg id="trajectory-svg" viewBox="0 0 100 100" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:2; overflow:visible;"></svg>
-        <div class="dot" id="results-dot" style="position:absolute; width:16px; height:16px; border-radius:50%; background:var(--accent); box-shadow:0 0 18px var(--accent), 0 0 4px #fff inset; transform:translate(-50%,50%); transition:left 0.7s cubic-bezier(.2,.8,.2,1), bottom 0.7s cubic-bezier(.2,.8,.2,1); z-index:3; left:6%; bottom:6%"></div>
+  <!-- LANDING -->
+  <section class="screen active" id="s-home">
+    <div class="hero">
+      <div>
+        <div class="kicker">a calibration challenge · pedagogical friction framework</div>
+        <h1>walls, workouts, and shortcuts.</h1>
+        <p class="lead">Ten classroom design moves. Sixty seconds. Sort each one onto the map: does it build productive challenge, bypass it, wall students out, or sit beneath the map as a system condition?</p>
+        <div class="row">
+          <button class="btn" id="startBtn">play.</button>
+          <a class="btn ghost" href="shorts/calibration.html">watch the 30-second explainer</a>
+        </div>
+        <div class="facts">
+          <div class="fact"><b>2</b><span>axes, not one dial</span></div>
+          <div class="fact"><b>10</b><span>moves per round, from a bank of 18</span></div>
+          <div class="fact"><b>60</b><span>seconds, or none</span></div>
+        </div>
       </div>
-      <div class="axislabel"><span>Low challenge</span><span>Productive challenge &rarr;</span></div>
-      <div class="readouts">
-        <div class="ro"><label>Productive challenge <b id="results-chnum">0%</b></label>
-          <div class="robar" id="results-chbar" role="progressbar" aria-label="Final Productive Challenge" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Final Productive Challenge: 0 percent"><div class="band" style="left:50%;width:30%"></div><i style="width:0%"></i></div></div>
-        <div class="ro"><label>Exclusionary barrier <b id="results-banum">0%</b></label>
-          <div class="robar" id="results-babar" role="progressbar" aria-label="Final Exclusionary Barrier" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Final Exclusionary Barrier: 0 percent"><div class="band" style="left:0;width:20%"></div><i style="width:0%"></i></div></div>
+      <div>
+        <div class="map" id="homeMap"></div>
+        <div class="rail"><span>infrastructure</span><span>policy · time · grading · access</span></div>
       </div>
     </div>
+  </section>
 
-    <!-- Right Column: Certificate and Thesis -->
-    <div>
-      <div class="cert">
-        <div class="cl" id="certlabel"></div>
-        <h3 id="certhead"></h3>
-        <p id="certdesc"></p>
-        <div class="certstats">
-          <div>MEAN CHALLENGE<b id="statch"></b></div>
-          <div>MEAN BARRIER<b id="statba"></b></div>
-          <div>FOUNDATION<b id="statfo"></b></div>
-          <div>SCHEMA<b id="statsc"></b></div>
+  <!-- PLAY -->
+  <section class="screen" id="s-play">
+    <div class="hud"><span id="hudCount">1 / 10</span><span id="hudClock">60s</span><span id="hudStreak">streak 0</span></div>
+    <div class="timer" id="timerBar"><i></i></div>
+    <div class="play">
+      <div>
+        <div class="card" id="card">
+          <div class="kicker" id="cardDim">design move</div>
+          <h3 id="cardTitle"></h3>
+          <p id="cardDetail"></p>
+        </div>
+        <div class="answers" id="answers">
+          <button class="ans" data-a="cal"><b>calibrated.</b><span>high challenge, low barrier</span></button>
+          <button class="ans" data-a="byp"><b>bypass.</b><span>polished output, no learning</span></button>
+          <button class="ans" data-a="exc"><b>exclusion.</b><span>the barrier does the filtering</span></button>
+          <button class="ans" data-a="inf"><b>infrastructure.</b><span>beneath the map: policy, time, grading</span></button>
+        </div>
+        <div class="verdict" id="verdict">
+          <div class="head"><span id="vOK"></span><span class="vtag" id="vTag"></span><span class="mono" id="vDim" style="color:var(--dim)"></span></div>
+          <p id="vWhy"></p>
+          <p class="fix" id="vFix"></p>
+          <div class="next"><button class="btn sm" id="nextBtn">next move →</button></div>
         </div>
       </div>
-      <p style="font-size: 0.8rem; color: var(--dim); text-align: center; margin-top: 10px; font-style: italic; margin-bottom: 20px;">*Note: All scores, stats, and achievements are illustrative models of the pedagogical friction framework, not validated learning assessment instruments.</p>
-      <p class="thesis" id="resultthesis"></p>
-      <p class="thesis" style="border-color:var(--infra)">One more thing the map showed you: <em>Exclusion sits on its own axis.</em> A classroom can be low-challenge and still lock learners out &mdash; banning a dictation tool adds no cognitive work, it only adds a wall. Removing exclusionary friction and calibrating productive friction are two different design acts, and conflating them is how schools end up smoothing away the struggle that learning requires while leaving the barriers standing.</p>
-      <section aria-labelledby="policyTakeawayTitle" style="margin:20px 0;padding:18px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.025)">
-        <h3 id="policyTakeawayTitle" style="font-size:1rem;margin:0 0 8px">Local workshop reflection</h3>
-        <p style="font-size:.82rem;color:var(--dim);margin:0 0 10px">Edit this browser-local drafting prompt before copying. It is not research evidence, dissertation findings, or endorsed policy language. Nothing is stored or transmitted.</p>
-        <textarea id="policyTakeaway" rows="4" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font:inherit;resize:vertical"></textarea>
-        <div class="navrow" style="justify-content:flex-start;margin-top:10px"><button class="btn ghost" type="button" onclick="copyPolicyTakeaway()">Copy workshop reflection</button></div>
-        <p id="copyTakeawayStatus" aria-live="polite" style="min-height:1.4em;margin:8px 0 0;color:var(--dim);font-size:.8rem"></p>
-      </section>
-      <div class="navrow">
-        <button class="btn" onclick="go('deep')">Academic deep dive &rarr;</button>
-        <button class="btn ghost" onclick="location.href='https://minerclass.github.io/nlu_ai-ed-conference-pres26/#9'">Return to presentation</button>
-        <button class="btn ghost" onclick="location.reload()">Re-calibrate the environment</button>
-        <a class="btn ghost" href="https://minerclass.github.io/answerable/" style="text-decoration: none; display: inline-flex; align-items: center;">Related: Answerable &rarr;</a>
-        <a class="btn ghost" href="https://minerclass.github.io/games-hub/" style="text-decoration: none; display: inline-flex; align-items: center;">&larr; Back to Games Hub</a>
-      </div>
-      <p class="credit" style="margin-top: 20px;">Framework: Miner, <em>Pedagogical Friction</em>. micahminer.com</p>
-    </div>
-  </div>
-</section>
-
-<!-- ============ DEEP DIVE ============ -->
-<section class="screen" id="deep">
-  <p class="eyebrow">Academic deep dive</p>
-  <h2>The Pedagogical Friction Framework</h2>
-  <p class="sub" style="margin-top:8px">Three learner-facing dimensions, and the infrastructural condition of possibility beneath them.</p>
-  <div class="tablescroll">
-  <table class="summary">
-    <thead>
-      <tr><th>Dimension</th><th>Locus</th><th>Preserves</th><th>Threatened by (bypass)</th><th>Preservation strategy</th></tr>
-    </thead>
-    <tbody>
-      <tr class="noeticrow"><td>Noetic Friction</td><td>The Head</td><td>Internal cognitive labor &amp; schema accommodation</td><td>Noetic displacement: instant output mutes the signal of "not knowing"</td><td>Handwriting/drafts before AI use; grade thinking trajectories</td></tr>
-      <tr class="rhetrow"><td>Rhetorical Friction</td><td>The Room</td><td>Dialogic struggle of defending claims to other minds</td><td>Rhetorical saturation: agreeable AI partners replace unpredictable peers</td><td>Socratic seminars, peer critique, live human dialogue</td></tr>
-      <tr class="exisrow"><td>Existential Friction</td><td>The World</td><td>Embodied accountability and personal authorial stakes</td><td>Existential abstraction: claims detached from an accountable claimant</td><td>Oral defenses, authorial stance, real audiences</td></tr>
-      <tr class="infrarow"><td>Infrastructural Friction <em style="font-weight:400;opacity:.8">(condition of possibility &mdash; not a fourth peer)</em></td><td>The System</td><td>Policies, grading criteria, and time structures that allow the three dimensions above to exist</td><td>Technical compliance: policy reduced to data security &amp; detection</td><td>Process-focused rubrics; friction-friendly policy; protected time for struggle</td></tr>
-    </tbody>
-  </table>
-  </div>
-  <p class="sub" style="margin-top:22px">Final challenge: classify the design move. Drag the card below to its correct place on the map or Infrastructure rail.</p>
-  
-  <div class="sortcard">
-    <div class="counter" id="sortcounter"></div>
-    <div class="quiz-grid">
-      <!-- Left Column: The Interactive Quiz Map and Infrastructure Rail -->
-      <div class="quiz-map-container" style="position: relative; width: 100%;">
-        <div class="map" id="quiz-map" style="width: 100%; aspect-ratio: 1; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; position: relative;">
-          <span class="region r-excl" style="position: absolute; left:0; top:0; font-family: ui-monospace, monospace; font-size: 9px; padding: 7px; color: var(--bad); pointer-events: none;">Exclusion<br><span style="opacity:.6">high barrier</span></span>
-          <span class="region r-grind" style="position: absolute; right:0; top:0; font-family: ui-monospace, monospace; font-size: 9px; padding: 7px; color: var(--warn); text-align: right; pointer-events: none;">Grind<br><span style="opacity:.6">overload</span></span>
-          <span class="region r-bypass" style="position: absolute; left:0; bottom:0; font-family: ui-monospace, monospace; font-size: 9px; padding: 7px; color: #7dd3fc; pointer-events: none;">Bypass<br><span style="opacity:.6">frictionless</span></span>
-          <span class="region r-cal" style="position: absolute; right:0; bottom:0; font-family: ui-monospace, monospace; font-size: 9px; padding: 7px; color: var(--good); text-align: right; pointer-events: none;">Calibrated<br><span style="opacity:.6">productive</span></span>
-          <div class="zone-cal" style="position: absolute; left: 50%; right: 6%; bottom: 4%; height: 18%; border: 1px dashed #34d39966; border-radius: 8px; background: rgba(52,211,153,.06); pointer-events: none;"></div>
-          
-          <!-- Drop zones as transparent absolute overlays -->
-          <div class="drop-zone" data-zone="excl" style="position: absolute; left: 0; top: 0; width: 50%; height: 50%; z-index: 10; cursor: pointer;"></div>
-          <div class="drop-zone" data-zone="grind" style="position: absolute; right: 0; top: 0; width: 50%; height: 50%; z-index: 10; cursor: not-allowed;"></div>
-          <div class="drop-zone" data-zone="bypass" style="position: absolute; left: 0; bottom: 0; width: 50%; height: 50%; z-index: 10; cursor: pointer;"></div>
-          <div class="drop-zone" data-zone="cal" style="position: absolute; right: 0; bottom: 0; width: 50%; height: 50%; z-index: 10; cursor: pointer;"></div>
-        </div>
-        
-        <!-- Infrastructure Rail below the map -->
-        <div class="infra-rail-container" style="margin-top: 12px; width: 100%;">
-          <div class="ylabel" style="font-family: ui-monospace, monospace; font-size: 9px; text-transform: uppercase; color: var(--dim); margin-bottom: 4px;">Infrastructural Condition</div>
-          <div class="drop-zone" id="quiz-infra-rail" data-zone="infra" style="width: 100%; height: 42px; border: 1px dashed var(--infra); border-radius: 8px; background: rgba(245,158,11,.05); display: flex; align-items: center; justify-content: center; font-family: ui-monospace, monospace; font-size: 10px; color: var(--infra); text-transform: uppercase; letter-spacing: 0.1em; transition: background 0.2s, border-color 0.2s, outline 0.2s; cursor: pointer; z-index: 10; user-select: none;">
-            Infrastructure Rail (Drop Here)
-          </div>
-        </div>
-      </div>
-      
-      <!-- Right Column: The Scenario Card to Drag & Feedback -->
-      <div class="quiz-card-column" style="display: flex; flex-direction: column; gap: 16px; width: 100%;">
-        <div class="draggable-card" id="draggable-scenario" draggable="true">
-          <span id="scenariotext"></span>
-        </div>
-        
-        <!-- Keyboard / Mobile Fallback Buttons -->
-        <div>
-          <div style="font-family: ui-monospace, monospace; font-size: 9px; color: var(--dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em;">Or select zone:</div>
-          <div class="quizbtns" id="quizbtns">
-            <!-- Buttons dynamically generated -->
-          </div>
-        </div>
-
-        <div class="sortfeedback" id="sortfeedback"></div>
-        <div class="scorebar" id="scorebar"></div>
+      <div class="mapcol">
+        <div class="map" id="playMap"></div>
+        <div class="rail" id="playRail"><span>infrastructure</span><span>policy · time · grading · access</span></div>
       </div>
     </div>
-  </div>
-  
-  <div class="navrow" style="margin-top: 22px;">
-    <button class="btn" id="sortnext" onclick="nextScenario()" style="display:none">Next scenario &rarr;</button>
-    <button class="btn ghost" onclick="location.reload()">Back to title screen</button>
-    <a class="btn ghost" href="https://minerclass.github.io/games-hub/" style="text-decoration: none; display: inline-flex; align-items: center;">&larr; Back to Games Hub</a>
-  </div>
-</section>
+  </section>
 
-<script src="game.js"></script>
+  <!-- RESULTS -->
+  <section class="screen" id="s-end">
+    <div class="kicker">round complete</div>
+    <h2 id="endHead">calibrated reader.</h2>
+    <div class="score">
+      <div class="fact"><b id="scAcc">0/10</b><span>sorted correctly</span></div>
+      <div class="fact"><b id="scStreak">0</b><span>best streak</span></div>
+      <div class="fact"><b id="scTime">0s</b><span>time used</span></div>
+    </div>
+    <div id="patterns"></div>
+    <div class="row" style="margin-top:20px">
+      <button class="btn" id="againBtn">play again (new cards).</button>
+      <button class="btn ghost" id="copyBtn">copy my result</button>
+      <a class="btn ghost" href="classic/">go deeper: the 5-minute design version</a>
+    </div>
+    <div class="list" id="review"></div>
+  </section>
+
+  <footer>
+    <b>Friction Lab</b> is a public teaching tool from the Pedagogical Friction Framework (Micah J. Miner). Scores are illustrative, not validated assessments. Nothing you do here is stored or transmitted. Infrastructural friction is modeled beneath the map because it is the condition that lets the other three dimensions exist, not a fourth peer dimension. · <a href="https://minerclass.github.io/games-hub/">more games</a> · <a href="https://micahminer.com">micahminer.com</a>
+  </footer>
+</div>
+
+<!-- TUTORIAL -->
+<div class="tut" id="tut" role="dialog" aria-modal="true" aria-labelledby="tutH">
+  <div class="box">
+    <div class="kicker" id="tutK">how to read the map · 1 of 3</div>
+    <h2 id="tutH"></h2>
+    <p id="tutP"></p>
+    <div class="steps"><i class="on"></i><i></i><i></i></div>
+    <div class="row"><button class="btn sm" id="tutNext">next</button><button class="btn ghost sm" id="tutSkip">skip, I know the map</button></div>
+  </div>
+</div>
+
+<script src="scenarios.js"></script>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const S=window.FL_SCENARIOS;
+  const LABEL={cal:'calibrated',byp:'bypass',exc:'exclusion',inf:'infrastructure'};
+  const DIMN={noetic:'noetic · the head',rhetorical:'rhetorical · the room',existential:'existential · the world',infra:'infrastructural · the system'};
+  const DIMC={noetic:'var(--noetic)',rhetorical:'var(--rhet)',existential:'var(--exis)',infra:'var(--infra)'};
+  const ROUND=10, LIMIT=60;
+
+  /* ---------- map ---------- */
+  function buildMap(el){
+    el.innerHTML=`
+    <svg viewBox="0 0 400 400" aria-label="Calibration map: horizontal axis productive challenge, vertical axis exclusionary barrier">
+      <rect class="zone z-byp" x="40" y="200" width="160" height="160"/>
+      <rect class="zone z-cal" x="200" y="200" width="160" height="160"/>
+      <rect class="zone z-exc" x="40" y="40" width="160" height="160"/>
+      <rect class="zone z-grind" x="200" y="40" width="160" height="160"/>
+      <line x1="40" y1="360" x2="360" y2="360" stroke="var(--line)" stroke-width="2"/>
+      <line x1="40" y1="40" x2="40" y2="360" stroke="var(--line)" stroke-width="2"/>
+      <line x1="200" y1="40" x2="200" y2="360" stroke="var(--line)" stroke-dasharray="3 5"/>
+      <line x1="40" y1="200" x2="360" y2="200" stroke="var(--line)" stroke-dasharray="3 5"/>
+      <text class="q" x="52" y="346">bypass</text>
+      <text class="q" x="296" y="346">calibrated</text>
+      <text class="q" x="52" y="60">exclusion</text>
+      <text class="q" x="310" y="60">grind</text>
+      <text class="ax" x="200" y="386" text-anchor="middle">productive challenge →</text>
+      <text class="ax" transform="translate(16 200) rotate(-90)" text-anchor="middle">exclusionary barrier →</text>
+      <polyline class="trail" fill="none" stroke="var(--gold)" stroke-width="2" points=""/>
+      <circle class="dot" r="9" cx="200" cy="200" fill="var(--gold)" stroke="#201f24" stroke-width="3"/>
+    </svg>`;
+    return {
+      svg:el.querySelector('svg'), dot:el.querySelector('.dot'), trail:el.querySelector('.trail'),
+      pts:[],
+      move(x,y,color){ const cx=40+x*3.2, cy=360-y*3.2; this.dot.setAttribute('cx',cx); this.dot.setAttribute('cy',cy); if(color)this.dot.setAttribute('fill',color); this.pts.push(cx+','+cy); this.trail.setAttribute('points',this.pts.slice(-6).join(' ')); },
+      light(z){ el.querySelectorAll('.zone').forEach(r=>{ ['cal','byp','exc','grind'].forEach(k=>r.classList.remove('lit-'+k)); if(z&&r.classList.contains('z-'+z)) r.classList.add('lit-'+z); }); },
+      reset(){ this.pts=[]; this.trail.setAttribute('points',''); this.move(50,50,'var(--gold)'); this.pts=[]; this.light(''); }
+    };
+  }
+  const homeMap=buildMap($('homeMap'));
+  const playMap=buildMap($('playMap'));
+  // idle drift on the landing map
+  (function drift(){ const pool=[[72,12,'var(--cal)'],[10,8,'var(--byp)'],[35,85,'var(--exc)'],[78,14,'var(--cal)'],[55,88,'var(--warn)']]; let i=0;
+    setInterval(()=>{ if(!$('s-home').classList.contains('active'))return; const p=pool[i++%pool.length]; homeMap.move(p[0],p[1],p[2]); },1600); })();
+
+  /* ---------- state ---------- */
+  let deck=[], idx=0, score=0, streak=0, best=0, log=[], t0=0, tLeft=LIMIT, tick=null, timerOn=true, answered=false;
+
+  function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+  function dealDeck(){
+    // guarantee a mix: at least 2 of each answer type, then fill
+    const by={cal:[],byp:[],exc:[],inf:[]}; S.forEach(s=>by[s.a].push(s));
+    let d=[]; Object.values(by).forEach(arr=>d.push(...shuffle(arr.slice()).slice(0,2)));
+    const rest=shuffle(S.filter(s=>!d.includes(s))); d.push(...rest.slice(0,ROUND-d.length));
+    return shuffle(d);
+  }
+  function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');window.scrollTo({top:0,behavior:'smooth'})}
+
+  /* ---------- tutorial ---------- */
+  const TUT=[
+    ['across: productive challenge.','How much the student has to think, argue, and stand behind. This is the friction that makes learning durable.'],
+    ['up: exclusionary barrier.','How much gets in the way of showing it: language, time, transcription, anxiety, access. A different kind of obstacle, not a higher dose of the first.'],
+    ['beneath the map: infrastructure.','Policy, grading, protected time. These decide whether a calibrated design survives contact with a real school. Sort those moves to the infrastructure rail.']
+  ];
+  let tutI=0;
+  function tutRender(){ $('tutK').textContent='how to read the map · '+(tutI+1)+' of 3'; $('tutH').textContent=TUT[tutI][0]; $('tutP').textContent=TUT[tutI][1];
+    document.querySelectorAll('.tut .steps i').forEach((e,i)=>e.classList.toggle('on',i<=tutI)); $('tutNext').textContent=tutI===2?'start':'next'; }
+  $('tutNext').onclick=()=>{ if(tutI<2){tutI++;tutRender();} else {$('tut').classList.remove('show'); begin();} };
+  $('tutSkip').onclick=()=>{ $('tut').classList.remove('show'); begin(); };
+
+  /* ---------- round ---------- */
+  function start(){ deck=dealDeck(); idx=0; score=0; streak=0; best=0; log=[]; playMap.reset(); $('playRail').classList.remove('lit');
+    show('s-play'); if(!sessionStorage.getItem('fl-tut')){ tutI=0; tutRender(); $('tut').classList.add('show'); sessionStorage.setItem('fl-tut','1'); } else begin(); }
+  function begin(){ t0=Date.now(); tLeft=LIMIT; clearInterval(tick); if(timerOn){ tick=setInterval(clock,250); } $('hudClock').textContent=timerOn?LIMIT+'s':'no clock'; $('timerBar').style.visibility=timerOn?'visible':'hidden'; render(); }
+  function clock(){ if(answered)return; tLeft=Math.max(0,LIMIT-(Date.now()-t0)/1000); $('hudClock').textContent=Math.ceil(tLeft)+'s';
+    $('timerBar').querySelector('i').style.transform='scaleX('+(tLeft/LIMIT)+')'; $('timerBar').classList.toggle('low',tLeft<12);
+    if(tLeft<=0){ clearInterval(tick); timeUp(); } }
+  function timeUp(){ // remaining cards count as unsorted
+    for(let i=idx;i<deck.length;i++) log.push({s:deck[i],picked:null,ok:false}); finish(); }
+
+  function render(){ answered=false; const s=deck[idx];
+    $('hudCount').textContent=(idx+1)+' / '+ROUND; $('hudStreak').textContent='streak '+streak;
+    $('cardDim').textContent='design move · '+(idx+1); $('cardTitle').textContent=s.t; $('cardDetail').textContent=s.d;
+    $('verdict').classList.remove('show'); document.querySelectorAll('.ans').forEach(b=>{b.disabled=false;b.classList.remove('right','wrong')}); }
+
+  document.querySelectorAll('.ans').forEach(b=>b.addEventListener('click',()=>answer(b.dataset.a)));
+  document.addEventListener('keydown',e=>{ if(!$('s-play').classList.contains('active')||$('tut').classList.contains('show'))return;
+    const k={'1':'cal','2':'byp','3':'exc','4':'inf'}[e.key]; if(k&&!answered)answer(k); if((e.key==='Enter'||e.key===' ')&&answered){e.preventDefault();next();} });
+
+  function answer(a){ if(answered)return; answered=true; const s=deck[idx]; const ok=a===s.a;
+    // pause clock while reading the verdict (time is for sorting, not reading)
+    const elapsed=(Date.now()-t0)/1000;
+    document.querySelectorAll('.ans').forEach(b=>{b.disabled=true; if(b.dataset.a===s.a)b.classList.add('right'); else if(b.dataset.a===a)b.classList.add('wrong');});
+    if(ok){score++;streak++;best=Math.max(best,streak);} else streak=0;
+    log.push({s,picked:a,ok});
+    // map
+    if(s.a==='inf'){ $('playRail').classList.add('lit'); playMap.light(''); }
+    else { $('playRail').classList.remove('lit'); playMap.move(s.x,s.y,'var(--'+s.a+')'); playMap.light(s.grind?'grind':s.a); }
+    // verdict
+    $('vOK').innerHTML=ok?'<span class="ok">✓ sorted.</span>':'<span class="no">✗ you said '+LABEL[a]+'.</span>';
+    $('vTag').className='vtag '+s.a; $('vTag').textContent=LABEL[s.a]+(s.infra?' · '+s.infra:'');
+    $('vDim').textContent=DIMN[s.dim]; $('vDim').style.color=DIMC[s.dim];
+    $('vWhy').textContent=s.why;
+    let fix=''; if(s.fix) fix='<b>what would calibrate it:</b> '+s.fix; if(!ok&&s.trap==='cal'&&a==='cal') fix=(fix?fix+' ':'')+'<b>why it felt rigorous:</b> both effort and obstacle rose. Only one of them teaches.'; $('vFix').innerHTML=fix; $('vFix').style.display=fix?'block':'none';
+    $('verdict').classList.add('show'); $('nextBtn').textContent=idx===ROUND-1?'see my pattern →':'next move →'; $('nextBtn').focus({preventScroll:true});
+    pausedAt=elapsed;
+  }
+  let pausedAt=0;
+  function next(){ // reading time is not charged: shift t0 so elapsed resumes where it paused
+    t0=Date.now()-pausedAt*1000; idx++; if(idx>=ROUND){clearInterval(tick);finish();return;} render(); }
+  $('nextBtn').onclick=next;
+
+  /* ---------- results ---------- */
+  function finish(){ show('s-end'); const used=Math.min(LIMIT,Math.round(LIMIT-tLeft));
+    $('scAcc').textContent=score+'/'+ROUND; $('scStreak').textContent=best; $('scTime').textContent=timerOn?used+'s':'—';
+    $('endHead').textContent= score>=9?'calibrated reader.': score>=7?'mostly on the right axis.': score>=5?'walls and workouts are blurring.':'the map is doing its job.';
+    // confusion patterns
+    const c={}; log.forEach(l=>{ if(!l.ok){ const k=(l.picked||'none')+'>'+l.s.a; c[k]=(c[k]||0)+1; } });
+    const P=[
+      ['cal>exc','You read walls as workouts <b>N</b> time(s).','The framework’s sharpest claim: exclusionary friction is a different kind of obstacle, not a higher dose of the productive kind. Rigor that gates participation produces neither equity nor learning.'],
+      ['cal>byp','You credited polished output as learning <b>N</b> time(s).','That is the signature of unproductive success: the artifact looks like learning, and the retrieval, organization, or authorship happened somewhere else.'],
+      ['exc>cal','You saw barriers where supports were already in place <b>N</b> time(s).','Check for the scaffold before calling it a wall. Rehearsal time, notes, rotating roles, and home-language options are what keep challenge from becoming exclusion.'],
+      ['byp>cal','You called a real workout a shortcut <b>N</b> time(s).','Ask where the not-knowing happens. If it happens inside the student before the tool speaks, the friction is intact.'],
+      ['none>','You ran out of clock with <b>N</b> card(s) unsorted.','Speed is not the point; the clock only keeps the sorting honest. Try the round with the timer off.']
+    ];
+    let html='', hot=false;
+    P.forEach(([k,h,p])=>{ let n=0; Object.keys(c).forEach(key=>{ if(key===k||(k==='none>'&&key.startsWith('none>')))n+=c[key]; });
+      if(n){ html+=`<div class="pattern ${!hot?'hot':''}"><h3>${h.replace('N',n)}</h3><p>${p}</p></div>`; hot=true; } });
+    // infrastructure confusion, any direction
+    let infN=0; Object.keys(c).forEach(k=>{ if(k.endsWith('>inf')&&!k.startsWith('none'))infN+=c[k]; });
+    if(infN) html+=`<div class="pattern"><h3>You placed system conditions on the learner map <b>${infN}</b> time(s).</h3><p>Policy, time, grading, and access sit beneath the map. They are not a fourth kind of learner-facing friction; they decide whether the other three can exist at all.</p></div>`;
+    let onMap=0; Object.keys(c).forEach(k=>{ if(k.startsWith('inf>'))onMap+=c[k]; });
+    if(onMap) html+=`<div class="pattern"><h3>You sent learner-facing moves to the infrastructure rail <b>${onMap}</b> time(s).</h3><p>If a student experiences it directly in the task, it belongs on the map. Infrastructure is what the student does not see: the calendar, the rubric, the policy.</p></div>`;
+    if(!html) html=`<div class="pattern hot"><h3>No recurring confusion.</h3><p>Every miss was a one-off. Try the deeper five-minute version, where you build a design rather than sort one.</p></div>`;
+    $('patterns').innerHTML=html;
+    $('review').innerHTML=log.map(l=>`<div class="item"><span class="m ${l.ok?'ok':'no'}">${l.ok?'✓':'✗'}</span><span>${l.s.t}<br><small>${LABEL[l.s.a]}${l.picked&&!l.ok?' · you said '+LABEL[l.picked]:''}${!l.picked?' · unsorted':''}</small></span><small>${l.s.tag}</small></div>`).join('');
+  }
+  $('copyBtn').onclick=async()=>{ const txt=`friction lab: ${score}/${ROUND} sorted, best streak ${best}. ${$('endHead').textContent} Play: https://minerclass.github.io/friction-game/`; try{await navigator.clipboard.writeText(txt);$('copyBtn').textContent='copied.'}catch(e){$('copyBtn').textContent=txt} };
+
+  /* ---------- controls ---------- */
+  $('startBtn').onclick=start; $('againBtn').onclick=start;
+  $('presentBtn').onclick=()=>{ const on=document.body.classList.toggle('present'); $('presentBtn').setAttribute('aria-pressed',on); };
+  $('timerBtn').onclick=()=>{ timerOn=!timerOn; $('timerBtn').setAttribute('aria-pressed',timerOn); if($('s-play').classList.contains('active')){ clearInterval(tick); if(timerOn){t0=Date.now()-(LIMIT-tLeft)*1000;tick=setInterval(clock,250);} $('hudClock').textContent=timerOn?Math.ceil(tLeft)+'s':'no clock'; $('timerBar').style.visibility=timerOn?'visible':'hidden'; } };
+  if(new URLSearchParams(location.search).get('present')==='1') $('presentBtn').click();
+  if(new URLSearchParams(location.search).get('timer')==='0') $('timerBtn').click();
+  homeMap.move(72,12,'var(--cal)');
+})();
+</script>
 </body>
 </html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>two axes, not one dial.</title>
+<meta name="description" content="A 30-second explainer: productive challenge and exclusionary barriers are different axes. AI does not remove friction; it moves it.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  :root{--bg:#0b1016;--panel:#111821;--line:#27313d;--text:#e6edf3;--dim:#8b98a5;--gold:#f0c040;
+        --cal:#34d399;--byp:#60a5fa;--exc:#f87171;--grind:#fbbf24;--inf:#f59e0b;
+        --sans:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:#000;color:var(--text);font-family:var(--sans)}
+  /* stage: 9:16 by default, letterboxed to the viewport; ?wide=1 gives 16:9 */
+  .stage{position:relative;width:min(100vw,calc(100vh*9/16));height:min(100vh,calc(100vw*16/9));margin:auto;background:var(--bg);overflow:hidden;
+    background-image:linear-gradient(rgba(56,189,248,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.04) 1px,transparent 1px);background-size:48px 48px}
+  body.wide .stage{width:min(100vw,calc(100vh*16/9));height:min(100vh,calc(100vw*9/16))}
+  body{display:flex}
+  .stage *{transition:opacity .5s ease,transform .6s cubic-bezier(.2,.8,.2,1)}
+  .hide{opacity:0!important}
+  .cap{position:absolute;left:6%;right:6%;top:8%;font-size:calc(var(--u)*7.4);font-weight:700;letter-spacing:-.02em;line-height:1.08}
+  .sub{position:absolute;left:6%;right:6%;top:31%;font-size:calc(var(--u)*3.4);color:var(--dim);line-height:1.4;font-family:var(--mono)}
+  .foot{position:absolute;left:6%;right:6%;bottom:5%;font-family:var(--mono);font-size:calc(var(--u)*2.6);color:var(--dim);letter-spacing:.08em}
+  .foot b{color:var(--gold);display:block;font-size:calc(var(--u)*4.2);letter-spacing:-.01em;margin-bottom:.3em}
+  .mapwrap{position:absolute;left:8%;width:84%;top:42%;aspect-ratio:1/1}
+  body.wide .cap{top:8%;left:5%;right:48%;font-size:calc(var(--u)*7)} body.wide .sub{top:40%;left:5%;right:50%;font-size:calc(var(--u)*3.2)}
+  body.wide .mapwrap{left:54%;width:40%;top:8%} body.wide .foot{left:5%;right:50%;bottom:8%}
+  svg{width:100%;height:100%;overflow:visible}
+  .ax{stroke:var(--line);stroke-width:3} .axlit{stroke:var(--gold);stroke-width:4}
+  .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.06em;fill:var(--dim);text-transform:lowercase}
+  .q{font-family:var(--sans);font-weight:700;font-size:16px;letter-spacing:-.01em}
+  .qs{font-family:var(--mono);font-size:9px;fill:var(--dim)}
+  .zone{opacity:0}
+  .dot{fill:var(--gold);stroke:#201f24;stroke-width:4}
+  .trail{fill:none;stroke:var(--gold);stroke-width:2;opacity:.5}
+  .rail{opacity:0}
+  .ctrl{position:fixed;right:10px;bottom:10px;z-index:5;font-family:var(--mono);font-size:12px;color:var(--dim);display:flex;gap:8px}
+  .ctrl button{font:inherit;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 10px;cursor:pointer}
+  body.render .ctrl{display:none}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="cap" id="cap"></div>
+  <div class="sub" id="sub"></div>
+  <div class="mapwrap">
+    <svg viewBox="0 0 400 440" id="svg">
+      <rect class="zone" id="z-byp" x="50" y="200" width="150" height="150" fill="rgba(96,165,250,.18)"/>
+      <rect class="zone" id="z-cal" x="200" y="200" width="150" height="150" fill="rgba(52,211,153,.18)"/>
+      <rect class="zone" id="z-exc" x="50" y="50" width="150" height="150" fill="rgba(248,113,113,.18)"/>
+      <rect class="zone" id="z-grind" x="200" y="50" width="150" height="150" fill="rgba(251,191,36,.15)"/>
+      <line id="axx" class="ax" x1="50" y1="350" x2="50" y2="350"/>
+      <line id="axy" class="ax" x1="50" y1="350" x2="50" y2="350"/>
+      <line x1="200" y1="50" x2="200" y2="350" stroke="var(--line)" stroke-dasharray="3 6" id="mid1" class="hide"/>
+      <line x1="50" y1="200" x2="350" y2="200" stroke="var(--line)" stroke-dasharray="3 6" id="mid2" class="hide"/>
+      <text class="lbl hide" id="lx" x="200" y="378" text-anchor="middle">productive challenge →</text>
+      <text class="lbl hide" id="ly" transform="translate(22 200) rotate(-90)" text-anchor="middle">exclusionary barrier →</text>
+      <g class="zone" id="t-byp"><text class="q" x="60" y="328" fill="var(--byp)">bypass</text><text class="qs" x="60" y="341">polished, empty</text></g>
+      <g class="zone" id="t-cal"><text class="q" x="210" y="328" fill="var(--cal)">calibrated</text><text class="qs" x="210" y="341">workout, no wall</text></g>
+      <g class="zone" id="t-exc"><text class="q" x="60" y="72" fill="var(--exc)">exclusion</text><text class="qs" x="60" y="85">a wall, not a workout</text></g>
+      <g class="zone" id="t-grind"><text class="q" x="210" y="72" fill="var(--grind)">grind</text><text class="qs" x="210" y="85">both high. which axis wins?</text></g>
+      <g class="rail" id="rail"><rect x="50" y="398" width="300" height="34" rx="8" fill="none" stroke="var(--inf)" stroke-dasharray="4 4"/><text class="lbl" x="200" y="420" text-anchor="middle" fill="var(--inf)" style="fill:var(--inf)">infrastructure · policy · time · grading</text></g>
+      <polyline class="trail" id="trail" points=""/>
+      <circle class="dot hide" id="dot" r="11" cx="200" cy="200"/>
+    </svg>
+  </div>
+  <div class="foot hide" id="foot"><b>friction lab.</b>minerclass.github.io/friction-game</div>
+</div>
+<div class="ctrl"><span id="tc">0.0s</span><button id="replay">replay</button><button id="aspect">16:9</button></div>
+
+<script>
+(function(){
+  const q=new URLSearchParams(location.search);
+  if(q.get('wide')==='1')document.body.classList.add('wide');
+  if(q.get('render')==='1')document.body.classList.add('render');
+  const st=document.getElementById('stage');
+  function unit(){ st.style.setProperty('--u', (Math.min(st.clientWidth,st.clientHeight)/100)+'px'); } unit(); addEventListener('resize',unit);
+  const $=id=>document.getElementById(id);
+  const DUR=30;
+
+  /* keyframes: [t, caption, subtitle] */
+  const CAPS=[
+    [0.0,'every assignment lives somewhere on this map.',''],
+    [4.0,'across: how much the student has to think, argue, and stand behind.','productive challenge. the friction that makes learning durable.'],
+    [9.0,'up: how much gets in the way of showing it.','exclusionary barrier. language, time, transcription, anxiety, access.'],
+    [14.0,'four corners. one of them teaches.','a wall is a different kind of obstacle, not a higher dose of a workout.'],
+    [19.5,'ai doesn’t remove friction. it moves it.','the output stays polished. the learning leaves the room.'],
+    [24.5,'underneath it all: infrastructure.','policy, grading, protected time decide whether a good design survives.'],
+    [27.0,'sort ten moves in sixty seconds.','']
+  ];
+  const lerp=(a,b,u)=>a+(b-a)*Math.min(1,Math.max(0,u));
+  const ease=u=>u<0?0:u>1?1:u*u*(3-2*u);
+  const px=x=>50+x*3, py=y=>350-y*3;
+  let trail=[];
+
+  function seek(t){
+    // captions
+    let c=CAPS[0]; for(const k of CAPS) if(t>=k[0]) c=k;
+    $('cap').textContent=c[1]; $('sub').textContent=c[2];
+    const sinceCap=t-c[0]; const capOp=ease(sinceCap/.5); $('cap').style.opacity=capOp; $('sub').style.opacity=ease((sinceCap-.4)/.5);
+    // axes draw 0-4s
+    const ax=ease((t-0.6)/2.2); $('axx').setAttribute('x2',lerp(50,350,ax)); $('axy').setAttribute('y2',lerp(350,50,ax));
+    $('mid1').classList.toggle('hide',t<3.2); $('mid2').classList.toggle('hide',t<3.2);
+    // x axis emphasis 4-9
+    $('axx').setAttribute('class', (t>=4&&t<9)?'axlit':'ax'); $('lx').classList.toggle('hide',t<4.3);
+    // y axis emphasis 9-14
+    $('axy').setAttribute('class', (t>=9&&t<14)?'axlit':'ax'); $('ly').classList.toggle('hide',t<9.3);
+    // zones 14-19.5 staggered
+    [['byp',14.3],['cal',15.3],['exc',16.3],['grind',17.3]].forEach(([z,at])=>{ const o=ease((t-at)/.6); $('z-'+z).style.opacity=o; $('t-'+z).style.opacity=o; });
+    // rail 24.5+
+    $('rail').style.opacity=ease((t-24.7)/.6);
+    // dot path
+    const dot=$('dot'); dot.classList.toggle('hide',t<4.4);
+    let x=50,y=50,col='var(--gold)';
+    if(t<9){ x=lerp(50,75,ease((t-4.6)/2.5)); y=12; col='var(--cal)'; }
+    else if(t<14){ x=lerp(75,40,ease((t-9.4)/2.4)); y=lerp(12,82,ease((t-9.4)/2.4)); col='var(--exc)'; }
+    else if(t<19.5){ // tour the corners: exc -> grind -> cal
+      if(t<16.3){x=40;y=82;col='var(--exc)'}
+      else if(t<17.8){x=lerp(40,72,ease((t-16.3)/1.2));y=lerp(82,86,ease((t-16.3)/1.2));col='var(--grind)'}
+      else {x=lerp(72,74,ease((t-17.8)/1));y=lerp(86,14,ease((t-17.8)/1.2));col='var(--cal)'}
+    }
+    else if(t<24.5){ const u=ease((t-20.2)/3); x=lerp(74,12,u); y=lerp(14,8,u); col=u>.5?'var(--byp)':'var(--cal)'; }
+    else { x=12;y=8;col='var(--byp)'; if(t>=27){ const u=ease((t-27.2)/1.6); x=lerp(12,74,u); y=lerp(8,14,u); col=u>.5?'var(--cal)':'var(--byp)'; } }
+    dot.setAttribute('cx',px(x)); dot.setAttribute('cy',py(y)); dot.style.fill=col;
+    // trail: rebuild deterministically from sampled times
+    const pts=[]; for(let s=Math.max(4.6,t-3);s<=t;s+=.2){ pts.push(sampleXY(s)); } $('trail').setAttribute('points',pts.map(p=>px(p[0])+','+py(p[1])).join(' '));
+    $('foot').classList.toggle('hide',t<27.3);
+    $('tc').textContent=t.toFixed(1)+'s';
+  }
+  function sampleXY(t){ // same path as above, used for the trail
+    if(t<9) return [lerp(50,75,ease((t-4.6)/2.5)),12];
+    if(t<14) return [lerp(75,40,ease((t-9.4)/2.4)),lerp(12,82,ease((t-9.4)/2.4))];
+    if(t<16.3) return [40,82];
+    if(t<17.8) return [lerp(40,72,ease((t-16.3)/1.2)),lerp(82,86,ease((t-16.3)/1.2))];
+    if(t<19.5) return [lerp(72,74,ease((t-17.8)/1)),lerp(86,14,ease((t-17.8)/1.2))];
+    if(t<24.5){const u=ease((t-20.2)/3);return [lerp(74,12,u),lerp(14,8,u)]}
+    if(t<27) return [12,8];
+    const u=ease((t-27.2)/1.6); return [lerp(12,74,u),lerp(8,14,u)];
+  }
+  window.__seek=seek; window.__duration=DUR;
+
+  // live playback (rAF), unless rendering
+  let start=null, raf=null;
+  function play(){ cancelAnimationFrame(raf); start=performance.now(); const step=now=>{ const t=(now-start)/1000; seek(Math.min(t,DUR)); if(t<DUR) raf=requestAnimationFrame(step); }; raf=requestAnimationFrame(step); }
+  if(!document.body.classList.contains('render')){ // disable CSS transitions fighting rAF? keep them; they smooth caption fades
+    play(); } else { // in render mode, kill transitions so each seek is exact
+    const s=document.createElement('style'); s.textContent='.stage *{transition:none!important}'; document.head.appendChild(s); seek(0); }
+  $('replay').onclick=play;
+  $('aspect').onclick=()=>{ const w=document.body.classList.toggle('wide'); $('aspect').textContent=w?'9:16':'16:9'; unit(); };
+})();
+</script>
+</body>
+</html>
