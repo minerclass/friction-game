@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Friction Lab · sixty seconds.</title>
-<meta name="description" content="Sort ten classroom design moves onto the calibration map in sixty seconds. Productive challenge and exclusionary barriers are different axes, not one dial.">
+<title>Friction Lab · sort the map.</title>
+<meta name="description" content="Sort ten classroom design moves onto the calibration map. Productive challenge and exclusionary barriers are different axes, not one dial. Play untimed first; the sixty-second round is the replay.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
 <link rel="stylesheet" href="https://minerclass.github.io/tokens.css">
@@ -23,14 +23,15 @@
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
   body{
-    background:var(--bg) linear-gradient(rgba(56,189,248,.035) 1px,transparent 1px) 0 0/42px 42px,
-               var(--bg) linear-gradient(90deg,rgba(56,189,248,.035) 1px,transparent 1px) 0 0/42px 42px;
     background-color:var(--bg);
+    background-image:linear-gradient(rgba(56,189,248,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.035) 1px,transparent 1px);
+    background-size:42px 42px;
     color:var(--text); font-family:var(--sans); -webkit-font-smoothing:antialiased;
     overflow-x:hidden; min-height:100vh;
   }
   button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
   a{color:var(--gold)}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
   .mono{font-family:var(--mono)}
   .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:lowercase;color:var(--dim)}
   h1,h2,h3{font-weight:700;letter-spacing:-.02em;line-height:1.05}
@@ -39,9 +40,10 @@
   .screen{display:none} .screen.active{display:block;animation:up .4s ease}
   @keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
   @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
   /* top bar */
-  .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap}
   .brand{display:flex;align-items:baseline;gap:10px}
   .brand b{font-size:15px} .brand span{color:var(--dim);font-size:12px}
   .bar .tools{display:flex;gap:8px}
@@ -49,7 +51,7 @@
   .chip[aria-pressed="true"]{color:var(--gold);border-color:var(--gold)}
 
   /* buttons */
-  .btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:999px;font-weight:700;font-size:16px;background:var(--gold);color:#201f24;transition:transform .12s,filter .12s}
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:999px;font-weight:700;font-size:16px;background:var(--gold);color:#201f24;transition:transform .12s,filter .12s;text-decoration:none}
   .btn:hover{transform:translateY(-1px);filter:brightness(1.05)} .btn:active{transform:translateY(0)}
   .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
   .btn.sm{padding:10px 16px;font-size:14px}
@@ -59,6 +61,7 @@
   .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:center}
   @media (max-width:760px){.hero{grid-template-columns:1fr}}
   .hero p.lead{font-size:18px;color:var(--dim);margin:14px 0 22px;max-width:46ch;line-height:1.5}
+  .hero p.note{font-size:13px;color:var(--dim);margin-top:12px;max-width:52ch;line-height:1.5;font-family:var(--mono)}
   .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:26px}
   .fact{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
   .fact b{display:block;font-family:var(--mono);font-size:20px;color:var(--gold)} .fact span{font-size:12px;color:var(--dim)}
@@ -73,8 +76,9 @@
   .map .zone{fill:transparent;transition:fill .3s}
   .map .zone.lit-cal{fill:rgba(52,211,153,.16)} .map .zone.lit-byp{fill:rgba(96,165,250,.16)}
   .map .zone.lit-exc{fill:rgba(248,113,113,.16)} .map .zone.lit-grind{fill:rgba(251,191,36,.14)}
-  .rail{margin:10px auto 0;max-width:520px;border:1px dashed var(--line);border-radius:10px;padding:8px 12px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--dim);display:flex;justify-content:space-between;transition:border-color .3s,color .3s}
+  .rail{margin:10px auto 0;max-width:520px;border:1px dashed var(--line);border-radius:10px;padding:8px 12px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--dim);display:flex;justify-content:space-between;gap:8px 16px;flex-wrap:wrap;transition:border-color .3s,color .3s}
   .rail.lit{border-color:var(--inf);color:var(--inf)}
+  @media (max-width:480px){.rail{flex-direction:column;gap:4px}}
 
   /* play */
   .play{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
@@ -86,19 +90,21 @@
   .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px;min-height:150px;position:relative}
   .card .kicker{margin-bottom:8px}
   .card h3{font-size:clamp(18px,3vw,24px);line-height:1.2}
+  .card h3:focus{outline:none}
   .card p{color:var(--dim);margin-top:8px;font-size:15px;line-height:1.45}
   .answers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
   .ans{text-align:left;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);transition:transform .1s,border-color .15s}
-  .ans:hover{transform:translateY(-1px)} .ans:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  .ans:hover{transform:translateY(-1px)}
   .ans b{display:block;font-size:16px} .ans span{display:block;font-size:12px;color:var(--dim);margin-top:3px}
   .ans[data-a="cal"]{border-left:4px solid var(--cal)} .ans[data-a="byp"]{border-left:4px solid var(--byp)}
   .ans[data-a="exc"]{border-left:4px solid var(--exc)} .ans[data-a="inf"]{border-left:4px solid var(--inf)}
   .ans[disabled]{opacity:.45;cursor:default}
   .ans.right{border-color:var(--good);box-shadow:0 0 0 1px var(--good) inset} .ans.wrong{border-color:var(--bad)}
+  .keyhint{margin-top:8px;font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.04em}
 
   .verdict{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;display:none}
   .verdict.show{display:block;animation:up .3s ease}
-  .verdict .head{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-family:var(--mono);font-size:13px;letter-spacing:.06em}
+  .verdict .head{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-family:var(--mono);font-size:13px;letter-spacing:.06em;flex-wrap:wrap}
   .verdict .head .ok{color:var(--good)} .verdict .head .no{color:var(--bad)}
   .vtag{padding:3px 8px;border-radius:999px;font-size:11px;border:1px solid currentColor}
   .vtag.cal{color:var(--cal)} .vtag.byp{color:var(--byp)} .vtag.exc{color:var(--exc)} .vtag.inf{color:var(--inf)}
@@ -107,8 +113,9 @@
   .verdict .next{margin-top:14px}
 
   /* results */
-  .score{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+  .score{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0 8px}
   @media (max-width:560px){.score{grid-template-columns:1fr 1fr}}
+  .illus{font-family:var(--mono);font-size:12px;color:var(--dim);margin-bottom:14px}
   .pattern{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;margin-top:14px}
   .pattern h3{margin-bottom:6px} .pattern p{color:var(--dim);line-height:1.5;font-size:15px}
   .pattern p b{color:var(--text)}
@@ -118,12 +125,21 @@
   .item .m{font-family:var(--mono)} .item .ok{color:var(--good)} .item .no{color:var(--bad)}
   .item small{color:var(--dim);font-family:var(--mono);font-size:11px}
   @media (max-width:560px){.item{grid-template-columns:22px 1fr}.item>small:last-child{grid-column:2}}
+  details.reflect{margin-top:18px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px 18px}
+  details.reflect summary{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center}
+  details.reflect summary::-webkit-details-marker{display:none}
+  details.reflect summary::after{content:'+';font-family:var(--mono);color:var(--dim)} details.reflect[open] summary::after{content:'–'}
+  details.reflect p{color:var(--dim);line-height:1.5;font-size:15px;margin-top:10px}
+  details.reflect textarea{width:100%;min-height:120px;margin-top:10px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;color:var(--text);font:inherit;font-size:15px;padding:12px;resize:vertical}
+  details.reflect .row{margin-top:10px}
+  details.reflect small{color:var(--dim);font-family:var(--mono);font-size:11px}
 
-  /* tutorial overlay */
+  /* tutorial dialog */
   .tut{position:fixed;inset:0;background:rgba(5,8,12,.82);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:18px;z-index:9}
   .tut.show{display:flex}
   .tut .box{max-width:560px;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px}
-  .tut .box h2{margin-bottom:8px} .tut .box p{color:var(--dim);line-height:1.5;font-size:16px;min-height:72px}
+  .tut .box h2{margin-bottom:8px} .tut .box h2:focus{outline:none}
+  .tut .box p{color:var(--dim);line-height:1.5;font-size:16px;min-height:72px}
   .tut .steps{display:flex;gap:6px;margin:14px 0}
   .tut .steps i{flex:1;height:4px;border-radius:2px;background:var(--line)} .tut .steps i.on{background:var(--gold)}
 
@@ -134,17 +150,17 @@
   body.present .wrap{max-width:1200px}
   body.present .card h3{font-size:30px} body.present .card p{font-size:18px}
   body.present .ans b{font-size:20px} body.present .ans span{font-size:14px}
-  body.present .verdict p{font-size:19px} body.present footer{display:none}
-  .sr{position:absolute;left:-9999px}
+  body.present .verdict p{font-size:19px} body.present .pattern p{font-size:18px} body.present .pattern h3{font-size:22px}
+  body.present .item{font-size:16px} body.present footer{display:none}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="wrap" id="wrap">
   <div class="bar">
-    <div class="brand"><b>friction lab.</b><span>sixty seconds on the calibration map</span></div>
+    <div class="brand"><b>friction lab.</b><span>sort the calibration map</span></div>
     <div class="tools">
       <button class="chip" id="presentBtn" aria-pressed="false" title="Larger type for a projected room">present</button>
-      <button class="chip" id="timerBtn" aria-pressed="true" title="Turn the sixty-second clock on or off">timer</button>
+      <button class="chip" id="timerBtn" aria-pressed="false" title="Sixty-second sorting clock on or off">timer</button>
     </div>
   </div>
 
@@ -154,15 +170,17 @@
       <div>
         <div class="kicker">a calibration challenge · pedagogical friction framework</div>
         <h1>walls, workouts, and shortcuts.</h1>
-        <p class="lead">Ten classroom design moves. Sixty seconds. Sort each one onto the map: does it build productive challenge, bypass it, wall students out, or sit beneath the map as a system condition?</p>
+        <p class="lead">Ten classroom design moves. Sort each one onto the map: does it build productive challenge, bypass it, wall students out, or sit beneath the map as a system condition? Every answer explains itself.</p>
         <div class="row">
-          <button class="btn" id="startBtn">play.</button>
-          <a class="btn ghost" href="shorts/calibration.html">watch the 30-second explainer</a>
+          <button class="btn" id="startBtn">play untimed.</button>
+          <button class="btn ghost" id="startTimedBtn">sixty-second round</button>
         </div>
+        <p class="note">Play untimed first. The sixty-second round is a replay: the clock counts only sorting time, not onboarding or reading the feedback.</p>
+        <div class="row" style="margin-top:14px"><a class="btn ghost sm" href="shorts/calibration.html">watch the 30-second explainer</a></div>
         <div class="facts">
           <div class="fact"><b>2</b><span>axes, not one dial</span></div>
           <div class="fact"><b>10</b><span>moves per round, from a bank of 18</span></div>
-          <div class="fact"><b>60</b><span>seconds, or none</span></div>
+          <div class="fact"><b>60</b><span>seconds of sorting, if you want the clock</span></div>
         </div>
       </div>
       <div>
@@ -174,21 +192,22 @@
 
   <!-- PLAY -->
   <section class="screen" id="s-play">
-    <div class="hud"><span id="hudCount">1 / 10</span><span id="hudClock">60s</span><span id="hudStreak">streak 0</span></div>
-    <div class="timer" id="timerBar"><i></i></div>
+    <div class="hud"><span id="hudCount">1 / 10</span><span id="hudClock">no clock</span><span id="hudStreak">streak 0</span></div>
+    <div class="timer" id="timerBar" aria-hidden="true"><i></i></div>
     <div class="play">
       <div>
         <div class="card" id="card">
           <div class="kicker" id="cardDim">design move</div>
-          <h3 id="cardTitle"></h3>
+          <h3 id="cardTitle" tabindex="-1"></h3>
           <p id="cardDetail"></p>
         </div>
-        <div class="answers" id="answers">
+        <div class="answers" id="answers" role="group" aria-label="Sort this move">
           <button class="ans" data-a="cal"><b>calibrated.</b><span>high challenge, low barrier</span></button>
-          <button class="ans" data-a="byp"><b>bypass.</b><span>polished output, no learning</span></button>
-          <button class="ans" data-a="exc"><b>exclusion.</b><span>the barrier does the filtering</span></button>
+          <button class="ans" data-a="byp"><b>bypass.</b><span>polished output, learning happened elsewhere</span></button>
+          <button class="ans" data-a="exc"><b>exclusion / grind.</b><span>the barrier does the filtering</span></button>
           <button class="ans" data-a="inf"><b>infrastructure.</b><span>beneath the map: policy, time, grading</span></button>
         </div>
+        <div class="keyhint">Keys 1–4 to answer; Enter to continue.</div>
         <div class="verdict" id="verdict">
           <div class="head"><span id="vOK"></span><span class="vtag" id="vTag"></span><span class="mono" id="vDim" style="color:var(--dim)"></span></div>
           <p id="vWhy"></p>
@@ -206,13 +225,20 @@
   <!-- RESULTS -->
   <section class="screen" id="s-end">
     <div class="kicker">round complete</div>
-    <h2 id="endHead">calibrated reader.</h2>
+    <h2 id="endHead" tabindex="-1">calibrated reader.</h2>
     <div class="score">
-      <div class="fact"><b id="scAcc">0/10</b><span>sorted correctly</span></div>
+      <div class="fact"><b id="scAcc">0/10</b><span>matched the stated criteria</span></div>
       <div class="fact"><b id="scStreak">0</b><span>best streak</span></div>
-      <div class="fact"><b id="scTime">0s</b><span>time used</span></div>
+      <div class="fact"><b id="scTime">—</b><span>sorting time used</span></div>
     </div>
+    <p class="illus">illustrative only · this is a sorting exercise against the framework's stated criteria, not a validated assessment of you or your teaching.</p>
     <div id="patterns"></div>
+    <details class="reflect" id="reflect">
+      <summary>optional: take one move into redesign</summary>
+      <p>Choose one move from this round. What thinking must remain with the learner, what barrier should be removed, and what system condition would make that design possible?</p>
+      <textarea id="reflectText" aria-label="Your redesign notes" placeholder="Write here. Nothing you type is stored or sent anywhere."></textarea>
+      <div class="row"><button class="btn ghost sm" id="reflectCopy">copy my notes</button><small>a local drafting aid: not scored, not saved, not transmitted.</small></div>
+    </details>
     <div class="row" style="margin-top:20px">
       <button class="btn" id="againBtn">play again (new cards).</button>
       <button class="btn ghost" id="copyBtn">copy my result</button>
@@ -226,11 +252,13 @@
   </footer>
 </div>
 
+<div class="sr" id="live" aria-live="polite" aria-atomic="true"></div>
+
 <!-- TUTORIAL -->
-<div class="tut" id="tut" role="dialog" aria-modal="true" aria-labelledby="tutH">
+<div class="tut" id="tut" role="dialog" aria-modal="true" aria-labelledby="tutH" aria-describedby="tutP">
   <div class="box">
     <div class="kicker" id="tutK">how to read the map · 1 of 3</div>
-    <h2 id="tutH"></h2>
+    <h2 id="tutH" tabindex="-1"></h2>
     <p id="tutP"></p>
     <div class="steps"><i class="on"></i><i></i><i></i></div>
     <div class="row"><button class="btn sm" id="tutNext">next</button><button class="btn ghost sm" id="tutSkip">skip, I know the map</button></div>
@@ -246,11 +274,13 @@
   const DIMN={noetic:'noetic · the head',rhetorical:'rhetorical · the room',existential:'existential · the world',infra:'infrastructural · the system'};
   const DIMC={noetic:'var(--noetic)',rhetorical:'var(--rhet)',existential:'var(--exis)',infra:'var(--infra)'};
   const ROUND=10, LIMIT=60;
+  const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const live=(t)=>{ $('live').textContent=''; setTimeout(()=>{$('live').textContent=t;},30); };
 
   /* ---------- map ---------- */
   function buildMap(el){
     el.innerHTML=`
-    <svg viewBox="0 0 400 400" aria-label="Calibration map: horizontal axis productive challenge, vertical axis exclusionary barrier">
+    <svg viewBox="0 0 400 400" role="img" aria-label="Calibration map. Horizontal axis: productive challenge. Vertical axis: exclusionary barrier. Quadrants: bypass, calibrated, exclusion, grind.">
       <rect class="zone z-byp" x="40" y="200" width="160" height="160"/>
       <rect class="zone z-cal" x="200" y="200" width="160" height="160"/>
       <rect class="zone z-exc" x="40" y="40" width="160" height="160"/>
@@ -269,8 +299,7 @@
       <circle class="dot" r="9" cx="200" cy="200" fill="var(--gold)" stroke="#201f24" stroke-width="3"/>
     </svg>`;
     return {
-      svg:el.querySelector('svg'), dot:el.querySelector('.dot'), trail:el.querySelector('.trail'),
-      pts:[],
+      dot:el.querySelector('.dot'), trail:el.querySelector('.trail'), pts:[],
       move(x,y,color){ const cx=40+x*3.2, cy=360-y*3.2; this.dot.setAttribute('cx',cx); this.dot.setAttribute('cy',cy); if(color)this.dot.setAttribute('fill',color); this.pts.push(cx+','+cy); this.trail.setAttribute('points',this.pts.slice(-6).join(' ')); },
       light(z){ el.querySelectorAll('.zone').forEach(r=>{ ['cal','byp','exc','grind'].forEach(k=>r.classList.remove('lit-'+k)); if(z&&r.classList.contains('z-'+z)) r.classList.add('lit-'+z); }); },
       reset(){ this.pts=[]; this.trail.setAttribute('points',''); this.move(50,50,'var(--gold)'); this.pts=[]; this.light(''); }
@@ -278,111 +307,173 @@
   }
   const homeMap=buildMap($('homeMap'));
   const playMap=buildMap($('playMap'));
-  // idle drift on the landing map
-  (function drift(){ const pool=[[72,12,'var(--cal)'],[10,8,'var(--byp)'],[35,85,'var(--exc)'],[78,14,'var(--cal)'],[55,88,'var(--warn)']]; let i=0;
-    setInterval(()=>{ if(!$('s-home').classList.contains('active'))return; const p=pool[i++%pool.length]; homeMap.move(p[0],p[1],p[2]); },1600); })();
+  homeMap.move(72,12,'var(--cal)');
+  if(!reduced){ const pool=[[72,12,'var(--cal)'],[10,8,'var(--byp)'],[35,85,'var(--exc)'],[78,14,'var(--cal)'],[55,88,'var(--warn)']]; let i=0;
+    setInterval(()=>{ if(!$('s-home').classList.contains('active'))return; const p=pool[i++%pool.length]; homeMap.move(p[0],p[1],p[2]); },1600); }
 
   /* ---------- state ---------- */
-  let deck=[], idx=0, score=0, streak=0, best=0, log=[], t0=0, tLeft=LIMIT, tick=null, timerOn=true, answered=false;
+  let deck=[], idx=0, score=0, streak=0, best=0, log=[], answered=false, roundDone=false;
+  // Sorting clock. Only sorting time counts: elapsedAcc holds completed timed segments,
+  // segStart marks a live segment (null while the card is answered, the tutorial is open,
+  // or the clock is off). Untimed wall time is never charged.
+  let timerOn=false, elapsedAcc=0, segStart=null, tick=null;
+  const now=()=>performance.now();
+  const sortingElapsed=()=>elapsedAcc+(segStart?(now()-segStart)/1000:0);
+  function segOpen(){ if(timerOn&&!answered&&!roundDone&&segStart===null&&!$('tut').classList.contains('show')) segStart=now(); }
+  function segClose(){ if(segStart!==null){ elapsedAcc+=(now()-segStart)/1000; segStart=null; } }
 
   function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
   function dealDeck(){
-    // guarantee a mix: at least 2 of each answer type, then fill
     const by={cal:[],byp:[],exc:[],inf:[]}; S.forEach(s=>by[s.a].push(s));
     let d=[]; Object.values(by).forEach(arr=>d.push(...shuffle(arr.slice()).slice(0,2)));
     const rest=shuffle(S.filter(s=>!d.includes(s))); d.push(...rest.slice(0,ROUND-d.length));
     return shuffle(d);
   }
-  function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');window.scrollTo({top:0,behavior:'smooth'})}
+  function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');window.scrollTo({top:0,behavior:reduced?'auto':'smooth'})}
 
-  /* ---------- tutorial ---------- */
+  /* ---------- tutorial (modal) ---------- */
   const TUT=[
     ['across: productive challenge.','How much the student has to think, argue, and stand behind. This is the friction that makes learning durable.'],
-    ['up: exclusionary barrier.','How much gets in the way of showing it: language, time, transcription, anxiety, access. A different kind of obstacle, not a higher dose of the first.'],
+    ['up: exclusionary barrier.','How much gets in the way of showing it: language, time, transcription, anxiety, access. A different kind of obstacle, not a higher dose of the first. When both axes are high (the grind corner), classify the barrier as exclusion and preserve the worthwhile challenge in your redesign.'],
     ['beneath the map: infrastructure.','Policy, grading, protected time. These decide whether a calibrated design survives contact with a real school. Sort those moves to the infrastructure rail.']
   ];
-  let tutI=0;
+  let tutI=0, tutOpen=false;
   function tutRender(){ $('tutK').textContent='how to read the map · '+(tutI+1)+' of 3'; $('tutH').textContent=TUT[tutI][0]; $('tutP').textContent=TUT[tutI][1];
-    document.querySelectorAll('.tut .steps i').forEach((e,i)=>e.classList.toggle('on',i<=tutI)); $('tutNext').textContent=tutI===2?'start':'next'; }
-  $('tutNext').onclick=()=>{ if(tutI<2){tutI++;tutRender();} else {$('tut').classList.remove('show'); begin();} };
-  $('tutSkip').onclick=()=>{ $('tut').classList.remove('show'); begin(); };
+    document.querySelectorAll('.tut .steps i').forEach((e,i)=>e.classList.toggle('on',i<=tutI)); $('tutNext').textContent=tutI===2?'start':'next'; $('tutH').focus(); }
+  function tutShow(){ tutOpen=true; tutI=0; $('tut').classList.add('show'); $('wrap').inert=true; $('wrap').setAttribute('aria-hidden','true'); tutRender(); }
+  function tutHide(){ tutOpen=false; $('tut').classList.remove('show'); $('wrap').inert=false; $('wrap').removeAttribute('aria-hidden'); begin(); }
+  $('tutNext').addEventListener('click',()=>{ if(tutI<2){tutI++;tutRender();} else tutHide(); });
+  $('tutSkip').addEventListener('click',tutHide);
+  $('tut').addEventListener('keydown',e=>{
+    if(e.key==='Escape'){ e.preventDefault(); tutHide(); return; }
+    if(e.key!=='Tab') return;
+    const f=[...$('tut').querySelectorAll('button')]; const first=f[0], last=f[f.length-1];
+    if(e.shiftKey && (document.activeElement===first || document.activeElement===$('tutH'))){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+  });
 
   /* ---------- round ---------- */
-  function start(){ deck=dealDeck(); idx=0; score=0; streak=0; best=0; log=[]; playMap.reset(); $('playRail').classList.remove('lit');
-    show('s-play'); if(!sessionStorage.getItem('fl-tut')){ tutI=0; tutRender(); $('tut').classList.add('show'); sessionStorage.setItem('fl-tut','1'); } else begin(); }
-  function begin(){ t0=Date.now(); tLeft=LIMIT; clearInterval(tick); if(timerOn){ tick=setInterval(clock,250); } $('hudClock').textContent=timerOn?LIMIT+'s':'no clock'; $('timerBar').style.visibility=timerOn?'visible':'hidden'; render(); }
-  function clock(){ if(answered)return; tLeft=Math.max(0,LIMIT-(Date.now()-t0)/1000); $('hudClock').textContent=Math.ceil(tLeft)+'s';
-    $('timerBar').querySelector('i').style.transform='scaleX('+(tLeft/LIMIT)+')'; $('timerBar').classList.toggle('low',tLeft<12);
-    if(tLeft<=0){ clearInterval(tick); timeUp(); } }
-  function timeUp(){ // remaining cards count as unsorted
-    for(let i=idx;i<deck.length;i++) log.push({s:deck[i],picked:null,ok:false}); finish(); }
+  function start(timed){
+    timerOn=!!timed; $('timerBtn').setAttribute('aria-pressed',timerOn);
+    deck=dealDeck(); idx=0; score=0; streak=0; best=0; log=[]; answered=false; roundDone=false; elapsedAcc=0; segStart=null; clearInterval(tick);
+    playMap.reset(); $('playRail').classList.remove('lit');
+    $('copyBtn').textContent='copy my result'; $('reflectText').value=''; $('reflect').open=false; $('reflectCopy').textContent='copy my notes';
+    $('timerBar').querySelector('i').style.transform='scaleX(1)'; $('timerBar').classList.remove('low');
+    show('s-play');
+    if(!sessionStorage.getItem('fl-tut')){ sessionStorage.setItem('fl-tut','1'); tutShow(); } else begin();
+  }
+  function begin(){ paintClock(); render(); segOpen(); if(timerOn) tick=setInterval(clock,250); }
+  function paintClock(){
+    const left=Math.max(0,LIMIT-sortingElapsed());
+    $('hudClock').textContent=timerOn?Math.ceil(left)+'s':'no clock';
+    $('timerBar').style.visibility=timerOn?'visible':'hidden';
+    $('timerBar').querySelector('i').style.transform='scaleX('+(left/LIMIT)+')'; $('timerBar').classList.toggle('low',timerOn&&left<12);
+  }
+  function clock(){ if(!timerOn||answered||roundDone||tutOpen)return; paintClock(); if(sortingElapsed()>=LIMIT){ clearInterval(tick); segClose(); timeUp(); } }
+  function timeUp(){ for(let i=idx;i<deck.length;i++) log.push({s:deck[i],picked:null,ok:false}); live('Time is up. '+(deck.length-idx)+' cards unsorted.'); finish(); }
 
   function render(){ answered=false; const s=deck[idx];
     $('hudCount').textContent=(idx+1)+' / '+ROUND; $('hudStreak').textContent='streak '+streak;
     $('cardDim').textContent='design move · '+(idx+1); $('cardTitle').textContent=s.t; $('cardDetail').textContent=s.d;
-    $('verdict').classList.remove('show'); document.querySelectorAll('.ans').forEach(b=>{b.disabled=false;b.classList.remove('right','wrong')}); }
+    $('verdict').classList.remove('show'); document.querySelectorAll('.ans').forEach(b=>{b.disabled=false;b.classList.remove('right','wrong')});
+    $('cardTitle').focus({preventScroll:true}); live('Move '+(idx+1)+' of '+ROUND+': '+s.t); }
 
   document.querySelectorAll('.ans').forEach(b=>b.addEventListener('click',()=>answer(b.dataset.a)));
-  document.addEventListener('keydown',e=>{ if(!$('s-play').classList.contains('active')||$('tut').classList.contains('show'))return;
-    const k={'1':'cal','2':'byp','3':'exc','4':'inf'}[e.key]; if(k&&!answered)answer(k); if((e.key==='Enter'||e.key===' ')&&answered){e.preventDefault();next();} });
+  document.addEventListener('keydown',e=>{
+    if(tutOpen||!$('s-play').classList.contains('active'))return;
+    const tag=(e.target.tagName||'').toLowerCase(); if(tag==='button'||tag==='a'||tag==='textarea'||tag==='input') return; // native activation handles these
+    const k={'1':'cal','2':'byp','3':'exc','4':'inf'}[e.key]; if(k&&!answered){ e.preventDefault(); answer(k); return; }
+    if(e.key==='Enter'&&answered){ e.preventDefault(); next(); }
+  });
 
-  function answer(a){ if(answered)return; answered=true; const s=deck[idx]; const ok=a===s.a;
-    // pause clock while reading the verdict (time is for sorting, not reading)
-    const elapsed=(Date.now()-t0)/1000;
+  function answer(a){ if(answered||tutOpen)return; answered=true; segClose(); const s=deck[idx]; const ok=a===s.a;
     document.querySelectorAll('.ans').forEach(b=>{b.disabled=true; if(b.dataset.a===s.a)b.classList.add('right'); else if(b.dataset.a===a)b.classList.add('wrong');});
     if(ok){score++;streak++;best=Math.max(best,streak);} else streak=0;
     log.push({s,picked:a,ok});
-    // map
     if(s.a==='inf'){ $('playRail').classList.add('lit'); playMap.light(''); }
     else { $('playRail').classList.remove('lit'); playMap.move(s.x,s.y,'var(--'+s.a+')'); playMap.light(s.grind?'grind':s.a); }
-    // verdict
     $('vOK').innerHTML=ok?'<span class="ok">✓ sorted.</span>':'<span class="no">✗ you said '+LABEL[a]+'.</span>';
-    $('vTag').className='vtag '+s.a; $('vTag').textContent=LABEL[s.a]+(s.infra?' · '+s.infra:'');
+    $('vTag').className='vtag '+s.a; $('vTag').textContent=LABEL[s.a]+(s.grind?' · grind corner':'')+(s.infra?' · '+s.infra:'');
     $('vDim').textContent=DIMN[s.dim]; $('vDim').style.color=DIMC[s.dim];
     $('vWhy').textContent=s.why;
-    let fix=''; if(s.fix) fix='<b>what would calibrate it:</b> '+s.fix; if(!ok&&s.trap==='cal'&&a==='cal') fix=(fix?fix+' ':'')+'<b>why it felt rigorous:</b> both effort and obstacle rose. Only one of them teaches.'; $('vFix').innerHTML=fix; $('vFix').style.display=fix?'block':'none';
-    $('verdict').classList.add('show'); $('nextBtn').textContent=idx===ROUND-1?'see my pattern →':'next move →'; $('nextBtn').focus({preventScroll:true});
-    pausedAt=elapsed;
+    let fix=''; if(s.fix) fix='<b>what would calibrate it:</b> '+s.fix;
+    if(!ok&&s.trap==='cal'&&a==='cal') fix=(fix?fix+' ':'')+'<b>why it felt rigorous:</b> both effort and obstacle rose. Only one of them teaches.';
+    $('vFix').innerHTML=fix; $('vFix').style.display=fix?'block':'none';
+    $('verdict').classList.add('show'); $('nextBtn').textContent=idx===ROUND-1?'see my pattern →':'next move →';
+    live((ok?'Correct. ':'Not quite. You said '+LABEL[a]+'. ')+'This move is '+LABEL[s.a]+'. '+s.why);
+    $('nextBtn').focus({preventScroll:true}); paintClock();
   }
-  let pausedAt=0;
-  function next(){ // reading time is not charged: shift t0 so elapsed resumes where it paused
-    t0=Date.now()-pausedAt*1000; idx++; if(idx>=ROUND){clearInterval(tick);finish();return;} render(); }
-  $('nextBtn').onclick=next;
+  function next(){ idx++; if(idx>=ROUND){clearInterval(tick);finish();return;} render(); segOpen(); }
+  $('nextBtn').addEventListener('click',next);
 
   /* ---------- results ---------- */
-  function finish(){ show('s-end'); const used=Math.min(LIMIT,Math.round(LIMIT-tLeft));
-    $('scAcc').textContent=score+'/'+ROUND; $('scStreak').textContent=best; $('scTime').textContent=timerOn?used+'s':'—';
-    $('endHead').textContent= score>=9?'calibrated reader.': score>=7?'mostly on the right axis.': score>=5?'walls and workouts are blurring.':'the map is doing its job.';
-    // confusion patterns
-    const c={}; log.forEach(l=>{ if(!l.ok){ const k=(l.picked||'none')+'>'+l.s.a; c[k]=(c[k]||0)+1; } });
-    const P=[
-      ['cal>exc','You read walls as workouts <b>N</b> time(s).','The framework’s sharpest claim: exclusionary friction is a different kind of obstacle, not a higher dose of the productive kind. Rigor that gates participation produces neither equity nor learning.'],
-      ['cal>byp','You credited polished output as learning <b>N</b> time(s).','That is the signature of unproductive success: the artifact looks like learning, and the retrieval, organization, or authorship happened somewhere else.'],
-      ['exc>cal','You saw barriers where supports were already in place <b>N</b> time(s).','Check for the scaffold before calling it a wall. Rehearsal time, notes, rotating roles, and home-language options are what keep challenge from becoming exclusion.'],
-      ['byp>cal','You called a real workout a shortcut <b>N</b> time(s).','Ask where the not-knowing happens. If it happens inside the student before the tool speaks, the friction is intact.'],
-      ['none>','You ran out of clock with <b>N</b> card(s) unsorted.','Speed is not the point; the clock only keeps the sorting honest. Try the round with the timer off.']
-    ];
-    let html='', hot=false;
-    P.forEach(([k,h,p])=>{ let n=0; Object.keys(c).forEach(key=>{ if(key===k||(k==='none>'&&key.startsWith('none>')))n+=c[key]; });
-      if(n){ html+=`<div class="pattern ${!hot?'hot':''}"><h3>${h.replace('N',n)}</h3><p>${p}</p></div>`; hot=true; } });
-    // infrastructure confusion, any direction
-    let infN=0; Object.keys(c).forEach(k=>{ if(k.endsWith('>inf')&&!k.startsWith('none'))infN+=c[k]; });
-    if(infN) html+=`<div class="pattern"><h3>You placed system conditions on the learner map <b>${infN}</b> time(s).</h3><p>Policy, time, grading, and access sit beneath the map. They are not a fourth kind of learner-facing friction; they decide whether the other three can exist at all.</p></div>`;
-    let onMap=0; Object.keys(c).forEach(k=>{ if(k.startsWith('inf>'))onMap+=c[k]; });
-    if(onMap) html+=`<div class="pattern"><h3>You sent learner-facing moves to the infrastructure rail <b>${onMap}</b> time(s).</h3><p>If a student experiences it directly in the task, it belongs on the map. Infrastructure is what the student does not see: the calendar, the rubric, the policy.</p></div>`;
-    if(!html) html=`<div class="pattern hot"><h3>No recurring confusion.</h3><p>Every miss was a one-off. Try the deeper five-minute version, where you build a design rather than sort one.</p></div>`;
+  // Every directed mismatch has copy. Order inside a tie is this table's order.
+  const EXPLAIN={
+    'cal>exc':['You read walls as workouts N.','The framework’s sharpest claim: exclusionary friction is a different kind of obstacle, not a higher dose of the productive kind. Rigor that gates participation produces neither equity nor learning.'],
+    'cal>byp':['You credited polished output as learning N.','That is the signature of unproductive success: the artifact looks like learning, and the retrieval, organization, or authorship happened somewhere else.'],
+    'exc>cal':['You saw barriers where supports were already in place N.','Check for the scaffold before calling it a wall. Rehearsal time, notes, rotating roles, and home-language options are what keep challenge from becoming exclusion.'],
+    'byp>cal':['You called a real workout a shortcut N.','Ask where the not-knowing happens. If it happens inside the student before the tool speaks, the friction is intact.'],
+    'exc>byp':['You read shortcuts as walls N.','Ask whether the obstacle blocks participation or lets the thinking happen elsewhere. A bypass removes the work; a wall removes the student.'],
+    'byp>exc':['You read walls as shortcuts N.','Ask who cannot participate, rather than only whether the task avoids cognitive work. These moves demanded effort from some students and locked others out.'],
+    'cal>inf':['You placed system conditions in the calibrated zone N.','Rubrics, protected time, and policy are not a learner-facing design, even when they protect one. They sit beneath the map and decide whether calibrated designs survive.'],
+    'byp>inf':['You read system conditions as a bypass N.','Detection software or product-only grading may incentivize bypass, but the move itself is a policy or grading structure. It belongs on the infrastructure rail.'],
+    'exc>inf':['You read system conditions as a wall N.','A device ban can propagate exclusion downward, but it is still a policy. Sort it to the rail, then ask what it does to the designs beneath it.'],
+    'inf>cal':['You sent calibrated learner-facing moves to the infrastructure rail N.','If a student meets it directly in the task, it belongs on the map. Infrastructure is the policy, resources, time, and assessment structure that shapes participation and learning; students can experience its effects directly, but the move itself is not a task design.'],
+    'inf>byp':['You sent bypass moves to the infrastructure rail N.','A citation rule or a chatbot partner is something the student does inside the task. That makes it a learner-facing design, not a system condition.'],
+    'inf>exc':['You sent exclusionary moves to the infrastructure rail N.','Cold-calls, handwriting-only, and overnight volume are experienced directly by the student in the task. They belong on the map, in the exclusion zone.']
+  };
+  const times=n=>n===1?'once':n===2?'twice':n+' times';
+  function finish(){ roundDone=true; segClose(); clearInterval(tick); show('s-end');
+    const used=Math.min(LIMIT,Math.round(sortingElapsed()));
+    $('scAcc').textContent=score+'/'+ROUND; $('scStreak').textContent=best; $('scTime').textContent=timerOn?used+'s':'untimed';
+    // directed counts: key is picked>truth
+    const c={}; let unsorted=0;
+    log.forEach(l=>{ if(l.picked===null){unsorted++;return;} if(!l.ok){ const k=l.picked+'>'+l.s.a; c[k]=(c[k]||0)+1; } });
+    const keys=Object.keys(c);
+    const repeated=keys.filter(k=>c[k]>=2).sort((a,b)=>c[b]-c[a]||Object.keys(EXPLAIN).indexOf(a)-Object.keys(EXPLAIN).indexOf(b));
+    const oneOffs=keys.filter(k=>c[k]===1).length;
+    const misses=keys.reduce((n,k)=>n+c[k],0);
+    let html='';
+    if(repeated.length){
+      repeated.forEach((k,i)=>{ const [p,t]=k.split('>'); const e=EXPLAIN[k]; const n=c[k];
+        const h=e?e[0].replace('N',times(n)):`You sorted ${LABEL[t]} moves as ${LABEL[p]} ${times(n)}.`;
+        const body=e?e[1]:'';
+        html+=`<div class="pattern ${i===0?'hot':''}"><h3>${h}</h3><p>${body}${body?' ':''}<b>${LABEL[t]}</b> moves, sorted as <b>${LABEL[p]}</b>, ${times(n)}.</p></div>`; });
+      if(oneOffs) html+=`<div class="pattern"><h3>${oneOffs} other miss${oneOffs===1?'':'es'} did not repeat.</h3><p>See the card list below for each one.</p></div>`;
+    } else if(misses){
+      html+=`<div class="pattern hot"><h3>${misses} miss${misses===1?'':'es'}, no direction repeated.</h3><p>Each mistake went a different way, so there is no single confusion to name. The card list below shows what each move was and what you called it.</p></div>`;
+    } else if(!unsorted){
+      html+=`<div class="pattern hot"><h3>All ten moves matched the stated criteria.</h3><p>Now defend a redesign: open the reflection below, pick one move you sorted as exclusion or bypass, and say what would calibrate it.</p></div>`;
+    }
+    if(unsorted) html+=`<div class="pattern"><h3>${unsorted} card${unsorted===1?'':'s'} unsorted when the clock ran out.</h3><p>Counted separately from the mistakes above: a card you never saw is not a confusion. Replay untimed if you want the full set.</p></div>`;
     $('patterns').innerHTML=html;
-    $('review').innerHTML=log.map(l=>`<div class="item"><span class="m ${l.ok?'ok':'no'}">${l.ok?'✓':'✗'}</span><span>${l.s.t}<br><small>${LABEL[l.s.a]}${l.picked&&!l.ok?' · you said '+LABEL[l.picked]:''}${!l.picked?' · unsorted':''}</small></span><small>${l.s.tag}</small></div>`).join('');
+    $('endHead').textContent= unsorted>=5?'the clock won this one.': score>=10?'calibrated reader.': score>=7?'mostly on the right axis.': score>=5?'walls and workouts are blurring.':'the map is doing its job.';
+    $('review').innerHTML=log.map(l=>`<div class="item"><span class="m ${l.ok?'ok':'no'}">${l.ok?'✓':'✗'}</span><span>${l.s.t}<br><small>${LABEL[l.s.a]}${l.picked&&!l.ok?' · you said '+LABEL[l.picked]:''}${l.picked===null?' · unsorted':''}</small></span><small>${l.s.tag}</small></div>`).join('');
+    $('endHead').focus({preventScroll:true});
+    live('Round complete. '+score+' of '+ROUND+' matched. '+$('patterns').querySelector('h3').textContent);
   }
-  $('copyBtn').onclick=async()=>{ const txt=`friction lab: ${score}/${ROUND} sorted, best streak ${best}. ${$('endHead').textContent} Play: https://minerclass.github.io/friction-game/`; try{await navigator.clipboard.writeText(txt);$('copyBtn').textContent='copied.'}catch(e){$('copyBtn').textContent=txt} };
+  $('copyBtn').addEventListener('click',async()=>{ const txt=`friction lab: ${score}/${ROUND} matched, best streak ${best}${timerOn?', timed':', untimed'}. ${$('endHead').textContent} Illustrative, not an assessment. Play: https://minerclass.github.io/friction-game/`; try{await navigator.clipboard.writeText(txt);$('copyBtn').textContent='copied.'}catch(e){$('copyBtn').textContent=txt} });
+  $('reflectCopy').addEventListener('click',async()=>{ const t=$('reflectText').value.trim(); if(!t){ $('reflectCopy').textContent='nothing to copy yet'; return; } try{await navigator.clipboard.writeText(t);$('reflectCopy').textContent='copied.'}catch(e){$('reflectCopy').textContent='select and copy manually'} });
 
   /* ---------- controls ---------- */
-  $('startBtn').onclick=start; $('againBtn').onclick=start;
-  $('presentBtn').onclick=()=>{ const on=document.body.classList.toggle('present'); $('presentBtn').setAttribute('aria-pressed',on); };
-  $('timerBtn').onclick=()=>{ timerOn=!timerOn; $('timerBtn').setAttribute('aria-pressed',timerOn); if($('s-play').classList.contains('active')){ clearInterval(tick); if(timerOn){t0=Date.now()-(LIMIT-tLeft)*1000;tick=setInterval(clock,250);} $('hudClock').textContent=timerOn?Math.ceil(tLeft)+'s':'no clock'; $('timerBar').style.visibility=timerOn?'visible':'hidden'; } };
-  if(new URLSearchParams(location.search).get('present')==='1') $('presentBtn').click();
-  if(new URLSearchParams(location.search).get('timer')==='0') $('timerBtn').click();
-  homeMap.move(72,12,'var(--cal)');
+  $('startBtn').addEventListener('click',()=>start(timerOn));
+  $('startTimedBtn').addEventListener('click',()=>start(true));
+  $('againBtn').addEventListener('click',()=>start(timerOn));
+  $('presentBtn').addEventListener('click',()=>{ const on=document.body.classList.toggle('present'); $('presentBtn').setAttribute('aria-pressed',on); });
+  $('timerBtn').addEventListener('click',()=>{
+    timerOn=!timerOn; $('timerBtn').setAttribute('aria-pressed',timerOn);
+    if($('s-play').classList.contains('active')&&!roundDone){
+      clearInterval(tick);
+      if(timerOn){ segOpen(); tick=setInterval(clock,250); } else { segClose(); }
+      paintClock();
+    } else paintClock();
+  });
+  const q=new URLSearchParams(location.search);
+  if(q.get('present')==='1') $('presentBtn').click();
+  if(q.get('timer')==='1'){ timerOn=true; $('timerBtn').setAttribute('aria-pressed','true'); }
+  if(q.get('timer')==='0'){ timerOn=false; $('timerBtn').setAttribute('aria-pressed','false'); }
+  function labelStart(){ $('startBtn').textContent=timerOn?'play with the clock.':'play untimed.'; }
+  $('timerBtn').addEventListener('click',labelStart); labelStart();
 })();
 </script>
 </body>
